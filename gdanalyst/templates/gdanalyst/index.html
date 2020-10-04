@@ -1,0 +1,50 @@
+{% extends "gdanalyst/layout.html" %}
+{% load static %}
+
+{% block title %}
+    GD Pick School
+{% endblock %}
+
+{% block styles %}
+    <link href="{% static 'gdanalyst/index.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+        <div class="index_form">
+            <form action="schools" id="world_div_form" method="GET">
+                <div class="form-group">
+                    <label for="world" class="form-label col-form-label-lg">World:</label>
+                    <select class="form-control" name="Worlds" id="world">
+                        <option value="bryant">Bryant</option>
+                        <option value="camp">Camp</option>
+                        <option value="dobie">Dobie</option>
+                        <option value="hayes">Hayes</option>
+                        <option value="heisman">Heisman</option>
+                        <option value="leahy">Leahy</option>
+                        <option value="rockne">Rockne</option>
+                        <option value="stagg">Stagg</option>
+                        <option value="warner">Warner</option>
+                        <option value="wilkinson">Wilkinson</option>
+                        <option value="yost">Yost</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="division" class="form-label col-form-label-lg">Division:</label>
+                    <select class="form-control" name="Divisions" id="division">
+                        <option value="D-IA">D-IA</option>
+                        <option value="D-IAA">D-IAA</option>
+                        <option value="D-II">D-II</option>
+                        <option value="D-III">D-III</option>
+                    </select>                                                          
+                </div>
+                <div class="form-group">
+                    <button type="submit" form="world_div_form" class="btn btn-info btn-lg btn-block">Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

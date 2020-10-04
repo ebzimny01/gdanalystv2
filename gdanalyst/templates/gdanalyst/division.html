@@ -1,0 +1,65 @@
+{% extends "gdanalyst/layout.html" %}
+{% load static %}
+
+{% block title %}
+    {{world}}
+{% endblock %}
+{% block styles %}
+    <link href="{% static 'gdanalyst/styles.css' %}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="h1 col p-2 ml-3 bg-primary text-white">{{ world }} {{ division }} ({{ coachcount }} human coaches)</div>
+    </div>
+    <div class="row align-items-center">
+        <form action="/world/{{ world }}/{{ division }}/player" id="player_div_form" method="GET">
+            <div class="col p-2 ml-3 input-group input-group-lg">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-lg">Enter recruit ID #:</span>
+                </div>
+                <input type="text" name="recruit" id="reecruitid" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg">
+                <button type="submit" form="player_div_form" class="ml-2 btn btn-success btn-lg">Map Recruit</button>
+            </div>
+        </form>
+        <div class="col"></div>
+        <div class="col dropdown">
+            <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Choose school...
+            </button>
+            <div class="dropdown-menu customClassForDropDown" aria-labelledby="dropdownMenuButton">
+                {% for school in schools %}
+                    <a class="dropdown-item" href="/{{ school.wis_id }}">{{ school.school_short }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="shadow p-3 m-3 bg-white rounded" id="main_mapid"></div>
+    <div hidden class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <table>
+                    <tr>
+                        <th>School</th>
+                        <th>ID</th>
+                        <th>Coach</th>
+                        <th>Lat</th>
+                        <th>Lon</th>
+                    </tr>
+                        {% for school in schools %}
+                        <tr>
+                            <td>{{ school.school_short }}</td>
+                            <td><a class="hct" href="/{{ school.wis_id }}">{{ school.wis_id }}</a></td>
+                            <td>{{ school.coach }}</td>
+                            <td>{{ school.location.latitude }}</td>
+                            <td>{{ school.location.longitude }}</td>
+                        </tr>
+                        {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="{% static 'gdanalyst/main_map.js' %}"></script>
+{% endblock %}

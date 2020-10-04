@@ -1,0 +1,17 @@
+{% extends "gdanalyst/layout.html" %}
+{% load static %}
+
+{% block title %}
+    GD Pick School
+{% endblock %}
+
+{% block body %}
+    {{ world }}
+    {{ division }}
+
+    <ul>
+        {% for school in schools %}
+            <li>{{ school }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

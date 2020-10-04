@@ -1,0 +1,51 @@
+{% extends "gdanalyst/layout.html" %}
+{% load static %}
+
+{% block title %}
+    {{ school }}
+{% endblock %}
+{% block styles %}
+    <link href="{% static 'gdanalyst/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <div>
+        <div class="h1 p-3 mb-1 bg-dark text-white" id="schoolname">{{ wid.school_short }}</div>
+        <div class="h5 pl-3 bg-transparent text-dark">{{ wid.location.name }}</div>
+        <div hidden id="latitude">{{ wid.location.latitude }}</div>
+        <div hidden id="longitude">{{ wid.location.longitude }}</div>
+        <div class="pl-3 bg-transparent text-dark">World: {{ wid.world }}</div>
+        <div hidden id="wisid">{{ wid.wis_id }}</div>
+        <div class="pl-3 bg-transparent text-dark">Coach: {{ coach }}</div>
+        <div class="pl-3 bg-transparent text-dark">Division: {{ wid.division }}</div>
+        <div class="pl-3 bg-transparent text-dark">Conference: {{ wid.conference }}</div>
+        <div class="pl-3 bg-transparent text-dark"><a href="/{{ wid.wis_id }}">School Map</a></div>
+    </div>
+    <hr>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-6 shadow p-3 mb-5 bg-white rounded">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Opponent</th>
+                            <th scope="col">Analyze Box Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in schedule %}
+                        <tr>
+                            <td> {{ row.0 }}</td>
+                            <td><a class="hct" id="{{ row.2 }}" href="/{{ row.2 }}">{{ row.1 }}</a></td>
+                            <td><a class="hct" id="{{ row.4 }}" href="/pbp?gameid={{ row.4 }}" target="_blank">{{ row.3 }}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-6"></div>
+        </div>
+    </div>
+    
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "gdanalyst/layout.html" %}
+{% load static %}
+
+{% block title %}
+    {{world}}
+{% endblock %}
+
+{% block body %}
+<h1>{{worldname}}</h1>
+<h3>
+    <a href="{{ world }}/D-IA">D-IA</a><br>
+    <a href="{{ world }}/D-IAA">D-IAA</a><br>
+    <a href="{{ world }}/D-II">D-II</a><br>
+    <a href="{{ world }}/D-III">D-III</a><br>
+</h3>
+{% endblock %}

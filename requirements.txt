@@ -1,0 +1,17 @@
+gunicorn
+beautifulsoup4
+cfscrape
+Django
+django-heroku
+django-tables2
+html5lib
+lxml
+nltk
+node
+numpy
+pandas
+progress
+psycopg2
+regex
+requests
+whitenoise
