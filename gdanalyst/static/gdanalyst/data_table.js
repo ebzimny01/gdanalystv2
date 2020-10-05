@@ -58,13 +58,13 @@ $(document).ready( function () {
                 searchPanes:{
                     show: true,
                 },
-                targets: [0, 1, 4, 6, 7, 8, 10],
+                targets: [0, 1, 4, 5, 6, 7, 8, 10],
             },
             {
                 searchPanes:{
                     show: false,
                 },
-                targets: [2, 3, 5, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+                targets: [2, 3, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
             },
             {
                 "visible": false, "targets": 25,
