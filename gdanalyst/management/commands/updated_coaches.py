@@ -11,7 +11,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Starting to update coaches . . . ({datetime.datetime.now()})")
         try:
             # coaches = School.objects.all()
-            coaches = School.objects.filter(world="yost").all()
+            coaches = School.objects.all()
         except School.DoesNotExist:
             raise CommandError('Error accessing School model data')
         baseURL = 'https://www.whatifsports.com/gd/TeamProfile/PlayerRatings.aspx?tid='
