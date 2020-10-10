@@ -52,7 +52,7 @@ $(document).ready( function () {
         ],
         searchPanes:{
             cascadePanes: false,
-            layout: 'columns-8',
+            layout: 'columns-9',
         },
         columnDefs:[
             {
