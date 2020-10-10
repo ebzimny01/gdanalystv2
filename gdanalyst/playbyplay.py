@@ -61,22 +61,21 @@ def get_pbp(gid):
             elif tmp == team_home:
                 offense = team_home_short
             else:
-                # print(offense)
-                t_row.append(offense) # column 0
-                t_row.append(quarter) # column 1
+                game = team_away_short + " @ " + team_home_short
+                t_row.append(game)                                          # column 0
+                t_row.append(offense)                                       # column 1
+                t_row.append(quarter)                                       # column 2
                 for td in tr.find_all("td"):
-                    # first 'td' appended should be 'clock' (column 2) 
+                    # first 'td' appended should be 'clock'                 # column 3
                     if td['class'][0] == "pbpClock":
-                        # second 'td' appended should be 'ball on' (column 3)
+                        # second 'td' appended should be 'ball on'  
                         clock_str = td.text
                         clock_obj = datetime.datetime.strptime(clock_str, '%M:%S')
-                        t_row.append(clock_obj.strftime('%M:%S'))
-                    # third and fourth items appended should be down & distance which need special handling to parse
-                    # print(f"td class = {td['class'][0]}")
+                        t_row.append(clock_obj.strftime('%M:%S'))           # column 4
                     elif td['class'][0] == "pbpDownDistance" and td.text[0] != "\xa0":
-                        t_row.append(int(td.text[0])) # 'down' (column 4)
+                        t_row.append(int(td.text[0]))                       # column 5 (down)
                         x = len(td.text)
-                        t_row.append(int(td.text[(x - 2):x])) # 'distance' (column 5)
+                        t_row.append(int(td.text[(x - 2):x]))               # column 6 (distance)
                     
                     # continue parsing
                     # at this point the next item to append should be the play by play details which require special parsing
@@ -89,7 +88,7 @@ def get_pbp(gid):
                         t_row.append(td.text)
                 #print(t_row)
                 #append entire row of data to data_table
-                if len(t_row) == 28:
+                if len(t_row) == 29:
                     table_data.append(t_row)
         quarter += 1
 
