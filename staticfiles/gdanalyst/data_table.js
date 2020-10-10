@@ -51,7 +51,7 @@ $(document).ready( function () {
             'csv', 'excel',
         ],
         searchPanes:{
-            cascadePanes: false,
+            cascadePanes: true,
             layout: 'columns-9',
         },
         columnDefs:[
