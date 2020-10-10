@@ -37,7 +37,7 @@ $(document).ready( function () {
         orderMulti: true,
         order: [[ 2, 'asc' ], [ 3, 'desc' ]],
         responsive: true,
-        stateSave:true,
+        stateSave:false,
         colReorder: true,
         dom: 'PBfrtip',
         buttons: [
