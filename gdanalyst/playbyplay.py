@@ -397,6 +397,19 @@ def parse_pbp(p):
             pd = "D"
         
         # to determine coverage and player in coverage
+        if "throws to" in t and "behind the line of scrimmage (very short)." in t:
+            coverage_find = re.search(r" throws to ([\w'-]+) behind the line of scrimmage ", t)
+            if coverage_find is not None:
+                opm = coverage_find.group(1)
+                opm = find_off(opm, off_players)
+                cvrg = ""
+                cvr = ""
+            else:
+                opm = "ERROR"
+                cvrg = "ERROR"
+                cvr = "ERR"
+                print(f"ERROR using regular expression to find OPM and CVRG in:\n{t}\n")
+
         if "throws to a covered" in t:
             coverage_find = re.search(r" throws to a covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
             if coverage_find is not None:
