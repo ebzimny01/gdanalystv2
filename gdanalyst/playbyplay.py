@@ -385,31 +385,18 @@ def parse_pbp(p):
        
 
         # for pass plays determines attempted pass depth
-        if re.search(r"throws to (.*) behind the line of scrimmage \(very short\).", t):
+        if re.search(r"throws to .* behind the line of scrimmage \(very short\).", t):
             pd = "VS"
-        if re.search(r"throws to (.*) \(Short\)", t):
+        if re.search(r"throws to .* \(Short\)", t):
             pd = "S"
-        if re.search(r"throws to (.*) \(Medium\)", t):
+        if re.search(r"throws to .* \(Medium\)", t):
             pd = "M"
-        if re.search(r"throws to (.*) \(Long\)", t):
+        if re.search(r"throws to .* \(Long\)", t):
             pd = "L"
-        if re.search(r"throws to (.*) \(Deep\)", t):
+        if re.search(r"throws to .* \(Deep\)", t):
             pd = "D"
         
         # to determine coverage and player in coverage
-        if r" throws to ([\w'-]+) behind the line of scrimmage \(very short\)." in t:
-            coverage_find = re.search(r" throws to ([\w'-]+) behind the line of scrimmage \(very short\).", t)
-            if coverage_find is not None:
-                opm = coverage_find.group(1)
-                opm = find_off(opm, off_players)
-                cvrg = ""
-                cvr = ""
-            else:
-                opm = "ERROR"
-                cvrg = "ERROR"
-                cvr = "ERR"
-                print(f"ERROR using regular expression to find OPM and CVRG in:\n{t}\n")
-
         if "throws to a covered" in t:
             coverage_find = re.search(r" throws to a covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
             if coverage_find is not None:
@@ -422,7 +409,7 @@ def parse_pbp(p):
                 opm = "ERROR"
                 cvrg = "ERROR"
                 cvr = "ERR"
-                print(f"ERROR using regular expression to find OPM and CVRG in:\n{t}\n")
+                print(f"ERROR(2) using regular expression to find OPM and CVRG in:\n{t}\n")
         elif "throws to a well-covered" in t:
             coverage_find = re.search(r" throws to a well-covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
             if coverage_find is not None:
@@ -435,7 +422,7 @@ def parse_pbp(p):
                 opm = "ERR"
                 cvrg = "ERR"
                 cvr = "ERR"
-                print(f"Error using regular expression to find OPM and CVRG in:\n{t}")
+                print(f"Error(3) using regular expression to find OPM and CVRG in:\n{t}")
         elif "throws to the wide open" in t:
             coverage_find = re.search(r" throws to the wide open ([\w'-]+) at the ", t)
             if coverage_find is not None:
@@ -447,7 +434,7 @@ def parse_pbp(p):
                 opm = "ERR"
                 cvrg = "ERR"
                 cvr = "ERR"
-                print(f"Error using regular expression to find OPM and CVRG in:\n{t}")
+                print(f"Error(4) using regular expression to find OPM and CVRG in:\n{t}")
         elif "throws to " in t:
             coverage_find = re.search(r" throws to ([\w'-]+?) \(([\w'-]+,?[\w'-]*)\)", t)
             if coverage_find is not None:
@@ -459,7 +446,7 @@ def parse_pbp(p):
                 opm = "ERR"
                 cvrg = "ERR"
                 cvr = "ERR"
-                print(f"Error using regular expression to find OPM and CVRG in:\n{t}")
+                print(f"Error(5) using regular expression to find OPM and CVRG in:\n{t}")
 
         # capture info about incomplete pass
         if "Pass is overthrown." in t:
