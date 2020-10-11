@@ -33,7 +33,8 @@ var th_dict = {
 $(document).ready( function () {
     $('#gameresult').DataTable( {
         fixedHeader: true,
-        paging: false,
+        paging: true,
+        "pageLength": 50,
         orderMulti: true,
         order: [[ 2, 'asc' ], [ 3, 'desc' ]],
         responsive: true,
