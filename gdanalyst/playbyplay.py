@@ -385,20 +385,20 @@ def parse_pbp(p):
        
 
         # for pass plays determines attempted pass depth
-        if re.search("throws to (.*) behind the line of scrimmage \(very short\).", t):
+        if re.search(r"throws to (.*) behind the line of scrimmage \(very short\).", t):
             pd = "VS"
-        if re.search("throws to (.*) \(Short\)", t):
+        if re.search(r"throws to (.*) \(Short\)", t):
             pd = "S"
-        if re.search("throws to (.*) \(Medium\)", t):
+        if re.search(r"throws to (.*) \(Medium\)", t):
             pd = "M"
-        if re.search("throws to (.*) \(Long\)", t):
+        if re.search(r"throws to (.*) \(Long\)", t):
             pd = "L"
-        if re.search("throws to (.*) \(Deep\)", t):
+        if re.search(r"throws to (.*) \(Deep\)", t):
             pd = "D"
         
         # to determine coverage and player in coverage
-        if "throws to" in t and "behind the line of scrimmage (very short)." in t:
-            coverage_find = re.search(r" throws to ([\w'-]+) behind the line of scrimmage ", t)
+        if r" throws to ([\w'-]+) behind the line of scrimmage \(very short\)." in t:
+            coverage_find = re.search(r" throws to ([\w'-]+) behind the line of scrimmage \(very short\).", t)
             if coverage_find is not None:
                 opm = coverage_find.group(1)
                 opm = find_off(opm, off_players)
