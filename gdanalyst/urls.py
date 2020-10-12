@@ -16,4 +16,5 @@ urlpatterns = [
     path("pbp", views.pbp, name="pbp"),
     path("<int:wisid>/schedule/all", views.get_all_results, name="get_all_results"),
     path("<int:wisid>/schedule/humans", views.get_all_results, name="get_all_results"),
+    path("coach/<str:coachid>", views.coach, name="coach")
 ]
