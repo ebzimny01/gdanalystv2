@@ -194,13 +194,13 @@ def get_all_results(request, wisid):
     sch_results = []
     if "all" in request.path:
         for each in schedule_table:
-            if each[5] != "#":
+            if each[6] != "#":
                 tmp = get_pbp(each[5])
                 sch_results = sch_results + tmp
     elif "humans" in request.path:
         for each in schedule_table:
-            if each[3] != "Sim AI" and each[5] != "#":
-                tmp = get_pbp(each[5])
+            if each[4] != "Sim AI" and each[6] != "#":
+                tmp = get_pbp(each[6])
                 sch_results = sch_results + tmp
     return render(request, "gdanalyst/gameresult.html", {
         "result": sch_results
