@@ -2,6 +2,7 @@ gunicorn
 beautifulsoup4
 cfscrape
 Django
+django-environ
 django-heroku
 django-tables2
 html5lib
