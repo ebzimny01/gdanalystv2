@@ -66,7 +66,7 @@ $(document).ready( function () {
                 searchPanes:{
                     show: false,
                 },
-                targets: [3, 4, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28],
+                targets: [3, 4, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 27],
             },
             {
                 "visible": false, "targets": 26,
