@@ -182,31 +182,72 @@ def pbp(request):
 def teamschedule(request, wisid):
     wid = School.objects.get(wis_id=wisid)
     coach = wid.coach
+    schedule_table = get_schedule_table(wisid)
+    return render(request, "gdanalyst/schedule.html", {
+        "wid": wid,
+        "coach": coach,
+        "schedule": schedule_table
+    })
+
+def get_all_results(request, wisid):
+    schedule_table = get_schedule_table(wisid)
+    sch_results = []
+    if "all" in request.path:
+        for each in schedule_table:
+            if each[6] != "#":
+                tmp = get_pbp(each[5])
+                sch_results = sch_results + tmp
+    elif "humans" in request.path:
+        for each in schedule_table:
+            if each[4] != "Sim AI" and each[6] != "#":
+                tmp = get_pbp(each[6])
+                sch_results = sch_results + tmp
+    return render(request, "gdanalyst/gameresult.html", {
+        "result": sch_results
+    })
+
+def get_schedule_table(wisid):
     team_schedule_URL = f"https://www.whatifsports.com/gd/TeamProfile/Schedule.aspx?tid={wisid}"
     team_schedule_page = requests.get(team_schedule_URL)
     soup = BeautifulSoup(team_schedule_page.content, 'html.parser')
-
-    schedule_tables = soup.find_all(class_="standard")
-
+    schedule_headers = soup.find_all(class_="ContentBoxWrapper")
     gameresults_table = []
-    for st in schedule_tables:
-        tr_all = st.find_all("tr")
+    for h in schedule_headers:
+        header = h.find("h3")
+        schedule_tables = h.find(class_="standard")
+        tr_all = schedule_tables.find_all("tr")
         for tr in tr_all:
             temp_row = []
             td_all = tr.find_all("td")
             if len(td_all) != 0:
+                # Exhibtion or Non-Conf or Conf or . . . 
+                temp_row.append(header.text)
+
+                # Date
                 date = td_all[0].find(class_="ScoreboardLink").text
                 temp_row.append(date)
+                
+                # Opponent text
                 opp = td_all[1].find(class_="teamProfileLink")
                 opponent = opp.text
                 temp_row.append(opponent)
+                
+                # Opponent wis_id used to link to opponent
                 opponent_href = opp['href']
                 opponent_href_re = re.search(r'(\d{5})', opponent_href)
                 opponent_id = opponent_href_re.group(1)
                 temp_row.append(opponent_id)
+                
+                # Coach
+                c = td_all[5].find(class_="coachProfileLink")
+                temp_row.append(c.text)
+                
+                # Result text
                 res = td_all[8].find(class_="boxscoreLink")
                 result = res.text
                 temp_row.append(result)
+                
+                # Result ID used to provide link to analyze box score
                 if result != "":
                     result_href = res['href']
                     result_href_re = re.search(r'OpenBoxscore\((\d{7})', result_href)
@@ -217,13 +258,16 @@ def teamschedule(request, wisid):
                 else:
                     result_id = "#"
                 temp_row.append(result_id)
-                gameresults_table.append(temp_row)
 
-    return render(request, "gdanalyst/schedule.html", {
-        "wid": wid,
-        "coach": coach,
-        "schedule": gameresults_table
-    })
+                # Outcome
+                outcome = td_all[9].text
+                if outcome == "W" or outcome == "L":
+                    temp_row.append(outcome)
+                else:
+                    temp_row.append("")
+
+                gameresults_table.append(temp_row)
+    return gameresults_table
 
 def teamroster(wisid):
     QB = 0
@@ -288,3 +332,10 @@ def teamroster(wisid):
         }
     return roster
     
+
+def coach(request, coachid):
+    teams = School.objects.filter(coach=coachid)
+    return render(request, "gdanalyst/coach.html", {
+        "teams": teams,
+        "coach": coachid
+    })

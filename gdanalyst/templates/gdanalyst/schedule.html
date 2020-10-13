@@ -16,7 +16,7 @@
         <div hidden id="longitude">{{ wid.location.longitude }}</div>
         <div class="pl-3 bg-transparent text-dark">World: {{ wid.world }}</div>
         <div hidden id="wisid">{{ wid.wis_id }}</div>
-        <div class="pl-3 bg-transparent text-dark">Coach: {{ coach }}</div>
+        <div class="pl-3 bg-transparent text-dark">Coach: <a href="/coach/{{ coach }}">{{ coach }}</a></div>
         <div class="pl-3 bg-transparent text-dark">Division: {{ wid.division }}</div>
         <div class="pl-3 bg-transparent text-dark">Conference: {{ wid.conference }}</div>
         <div class="pl-3 bg-transparent text-dark"><a href="/{{ wid.wis_id }}">School Map</a></div>
@@ -24,21 +24,33 @@
     <hr>
     <div class="container-fluid">
         <div class="row">
+            <a href="/{{ wid.wis_id }}/schedule/all" class="btn btn-primary btn-lg m-2" role="button" aria-pressed="true" target="_blank">Analyze Results for All Opponents</a>
+            <a href="/{{ wid.wis_id }}/schedule/humans" class="btn btn-primary btn-lg m-2" role="button" aria-pressed="true" target="_blank">Analyze Results for Human Opponents</a>
+        </div>
+        <div class="row">
             <div class="col-6 shadow p-3 mb-5 bg-white rounded">
                 <table class="table table-sm table-hover">
                     <thead>
                         <tr>
+                            <th scope="col">Type</th>
                             <th scope="col">Date</th>
                             <th scope="col">Opponent</th>
+                            <th scope="col">Coach</th>
                             <th scope="col">Analyze Box Score</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for row in schedule %}
                         <tr>
-                            <td> {{ row.0 }}</td>
-                            <td><a class="hct" id="{{ row.2 }}" href="/{{ row.2 }}">{{ row.1 }}</a></td>
-                            <td><a class="hct" id="{{ row.4 }}" href="/pbp?gameid={{ row.4 }}" target="_blank">{{ row.3 }}</a></td>
+                            <td>{{ row.0 }}</td>
+                            <td>{{ row.1 }}</td>
+                            <td><a class="hct" id="{{ row.3 }}" href="/{{ row.3 }}">{{ row.2 }}</a></td>
+                            {% if row.4 != "Sim AI" %}
+                                <td><a href="/coach/{{ row.4 }}">{{ row.4 }}</a></td>
+                            {% else %}
+                                <td>{{ row.4 }}</td>
+                            {% endif %}
+                            <td><a class="hct" id="{{ row.6 }}" href="/pbp?gameid={{ row.6 }}" target="_blank">{{row.7}} {{ row.5 }}</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>

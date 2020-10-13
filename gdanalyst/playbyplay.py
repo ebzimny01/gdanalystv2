@@ -61,22 +61,24 @@ def get_pbp(gid):
             elif tmp == team_home:
                 offense = team_home_short
             else:
-                # print(offense)
-                t_row.append(offense) # column 0
-                t_row.append(quarter) # column 1
+                game = team_away_short + " @ " + team_home_short
+                t_row.append(game)                                          # column 0
+                t_row.append(offense)                                       # column 1
+                t_row.append(quarter)                                       # column 2
                 for td in tr.find_all("td"):
-                    # first 'td' appended should be 'clock' (column 2) 
+                    # first 'td' appended should be 'clock'                 # column 3
                     if td['class'][0] == "pbpClock":
-                        # second 'td' appended should be 'ball on' (column 3)
+                        # second 'td' appended should be 'ball on'  
                         clock_str = td.text
-                        clock_obj = datetime.datetime.strptime(clock_str, '%M:%S')
-                        t_row.append(clock_obj.strftime('%M:%S'))
-                    # third and fourth items appended should be down & distance which need special handling to parse
-                    # print(f"td class = {td['class'][0]}")
+                        try:
+                            clock_obj = datetime.datetime.strptime(clock_str, '%M:%S')
+                        except:
+                            clock_obj = datetime.datetime.strptime("0:00", '%M:%S')
+                        t_row.append(clock_obj.strftime('%M:%S'))           # column 4
                     elif td['class'][0] == "pbpDownDistance" and td.text[0] != "\xa0":
-                        t_row.append(int(td.text[0])) # 'down' (column 4)
+                        t_row.append(int(td.text[0]))                       # column 5 (down)
                         x = len(td.text)
-                        t_row.append(int(td.text[(x - 2):x])) # 'distance' (column 5)
+                        t_row.append(int(td.text[(x - 2):x]))               # column 6 (distance)
                     
                     # continue parsing
                     # at this point the next item to append should be the play by play details which require special parsing
@@ -89,7 +91,7 @@ def get_pbp(gid):
                         t_row.append(td.text)
                 #print(t_row)
                 #append entire row of data to data_table
-                if len(t_row) == 28:
+                if len(t_row) == 29:
                     table_data.append(t_row)
         quarter += 1
 
@@ -386,15 +388,15 @@ def parse_pbp(p):
        
 
         # for pass plays determines attempted pass depth
-        if re.search("throws to (.*) behind the line of scrimmage \(very short\).", t):
+        if re.search(r"throws to .* behind the line of scrimmage \(very short\).", t):
             pd = "VS"
-        if re.search("throws to (.*) \(Short\)", t):
+        if re.search(r"throws to .* \(Short\)", t):
             pd = "S"
-        if re.search("throws to (.*) \(Medium\)", t):
+        if re.search(r"throws to .* \(Medium\)", t):
             pd = "M"
-        if re.search("throws to (.*) \(Long\)", t):
+        if re.search(r"throws to .* \(Long\)", t):
             pd = "L"
-        if re.search("throws to (.*) \(Deep\)", t):
+        if re.search(r"throws to .* \(Deep\)", t):
             pd = "D"
         
         # to determine coverage and player in coverage
@@ -410,7 +412,7 @@ def parse_pbp(p):
                 opm = "ERROR"
                 cvrg = "ERROR"
                 cvr = "ERR"
-                print(f"ERROR using regular expression to find OPM and CVRG in:\n{t}\n")
+                print(f"ERROR(2) using regular expression to find OPM and CVRG in:\n{t}\n")
         elif "throws to a well-covered" in t:
             coverage_find = re.search(r" throws to a well-covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
             if coverage_find is not None:
@@ -423,7 +425,7 @@ def parse_pbp(p):
                 opm = "ERR"
                 cvrg = "ERR"
                 cvr = "ERR"
-                print(f"Error using regular expression to find OPM and CVRG in:\n{t}")
+                print(f"Error(3) using regular expression to find OPM and CVRG in:\n{t}")
         elif "throws to the wide open" in t:
             coverage_find = re.search(r" throws to the wide open ([\w'-]+) at the ", t)
             if coverage_find is not None:
@@ -435,7 +437,7 @@ def parse_pbp(p):
                 opm = "ERR"
                 cvrg = "ERR"
                 cvr = "ERR"
-                print(f"Error using regular expression to find OPM and CVRG in:\n{t}")
+                print(f"Error(4) using regular expression to find OPM and CVRG in:\n{t}")
         elif "throws to " in t:
             coverage_find = re.search(r" throws to ([\w'-]+?) \(([\w'-]+,?[\w'-]*)\)", t)
             if coverage_find is not None:
@@ -447,7 +449,7 @@ def parse_pbp(p):
                 opm = "ERR"
                 cvrg = "ERR"
                 cvr = "ERR"
-                print(f"Error using regular expression to find OPM and CVRG in:\n{t}")
+                print(f"Error(5) using regular expression to find OPM and CVRG in:\n{t}")
 
         # capture info about incomplete pass
         if "Pass is overthrown." in t:
@@ -543,10 +545,10 @@ def parse_pbp(p):
                 dpm = "ERR"
         elif "yards on the play" in t_sentences[-1] or "yard gain" in t_sentences[-1] or "yards gain" in t_sentences[-1]:
             # need to grab the positive yards
-            yards_match = re.search(r'(^[\d]+) yard', t_sentences[-1])
+            yards_match = re.search(r'(^[\d-]+) yard', t_sentences[-1])
             yg = int(yards_match.group(1))
         elif "TOUCHDOWN" in t_sentences[-1]:
-            yards_match = re.search(r'(^[\d]+) yard', t_sentences[-2])
+            yards_match = re.search(r'(^[\d-]+) yard', t_sentences[-2])
             yg = int(yards_match.group(1))
     result.append(yg)           # index 17
 

@@ -1,0 +1,42 @@
+{% extends "gdanalyst/layout.html" %}
+{% load static %}
+
+{% block title %}
+    GD Coach
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col h1 p-3 mb-1 bg-dark text-white" id="coach">{{ coach }}</div>
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <th>World</th>
+                    <th>School</th>
+                    <th>Division</th>
+                </thead>
+                <tbody>
+                    {% for team in teams %}
+                    <tr>
+                        <td>
+                            {{ team.world }}
+                        </td>
+                        <td>
+                            <a href="/{{ team.wis_id }}">{{ team.school_short }}</a>
+                        </td>
+                        <td>
+                            {{ team.division }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm"></div>
+    </div>
+</div>
+    
+{% endblock %}
