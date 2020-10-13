@@ -70,7 +70,10 @@ def get_pbp(gid):
                     if td['class'][0] == "pbpClock":
                         # second 'td' appended should be 'ball on'  
                         clock_str = td.text
-                        clock_obj = datetime.datetime.strptime(clock_str, '%M:%S')
+                        try:
+                            clock_obj = datetime.datetime.strptime(clock_str, '%M:%S')
+                        except:
+                            clock_obj = datetime.datetime.strptime("0:00", '%M:%S')
                         t_row.append(clock_obj.strftime('%M:%S'))           # column 4
                     elif td['class'][0] == "pbpDownDistance" and td.text[0] != "\xa0":
                         t_row.append(int(td.text[0]))                       # column 5 (down)
@@ -542,10 +545,10 @@ def parse_pbp(p):
                 dpm = "ERR"
         elif "yards on the play" in t_sentences[-1] or "yard gain" in t_sentences[-1] or "yards gain" in t_sentences[-1]:
             # need to grab the positive yards
-            yards_match = re.search(r'(^[\d]+) yard', t_sentences[-1])
+            yards_match = re.search(r'(^[\d-]+) yard', t_sentences[-1])
             yg = int(yards_match.group(1))
         elif "TOUCHDOWN" in t_sentences[-1]:
-            yards_match = re.search(r'(^[\d]+) yard', t_sentences[-2])
+            yards_match = re.search(r'(^[\d-]+) yard', t_sentences[-2])
             yg = int(yards_match.group(1))
     result.append(yg)           # index 17
 
