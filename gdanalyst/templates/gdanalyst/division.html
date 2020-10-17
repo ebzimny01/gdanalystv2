@@ -4,9 +4,11 @@
 {% block title %}
     {{world}}
 {% endblock %}
+
 {% block styles %}
     <link href="{% static 'gdanalyst/styles.css' %}" rel="stylesheet">
 {% endblock %}
+
 {% block body %}
     <div class="row">
         <div class="h1 col p-2 ml-3 bg-primary text-white">{{ world }} {{ division }} ({{ coachcount }} human coaches)</div>
@@ -23,10 +25,11 @@
         </form>
         <div class="col"></div>
         <div class="col dropdown">
-            <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button onclick="myFunction()" class="btn btn-secondary btn-lg dropbtn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Choose school...
             </button>
-            <div class="dropdown-menu customClassForDropDown" aria-labelledby="dropdownMenuButton">
+            <div id="myDropdown" class="dropdown-content customClassForDropDown" aria-labelledby="dropdownMenuButton">
+                <input type="text" placeholder="Search..." id="myInput" onkeyup="filterFunction()">
                 {% for school in schools %}
                     <a class="dropdown-item" href="/{{ school.wis_id }}">{{ school.school_short }}</a>
                 {% endfor %}
@@ -62,4 +65,8 @@
     <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
     <script src="{% static 'gdanalyst/main_map.js' %}"></script>
+{% endblock %}
+
+{% block script %}
+            <script src="{% static 'gdanalyst/buttonfilter.js' %}"></script>
 {% endblock %}
