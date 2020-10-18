@@ -35,41 +35,23 @@ function player_main() {
         title: playername
     }).addTo(mymap);
     marker_player.bindPopup(`${playername} (${position})`);
-    var circle_100M_player = L.circle([player_lat, player_lon], {
-        color: 'red',
-        fillColor: '#fff',
-        fillopacity: 1,
-        radius: 161000
-    }).addTo(mymap);
-    var circle_250M_player = L.circle([player_lat, player_lon], {
-        color: 'orange',
-        fillColor: '#fff',
-        fillopacity: 1,
-        radius: 402000
-    }).addTo(mymap);
-    var circle_500M_player = L.circle([player_lat, player_lon], {
-        color: 'yellow',
-        fillColor: '#fff',
-        fillopacity: 1,
-        radius: 804000
-    }).addTo(mymap);
-    var circle_1000M_player = L.circle([player_lat, player_lon], {
-        color: 'green',
-        fillColor: '#fff',
-        fillopacity: 1,
-        radius: 1608000
-    }).addTo(mymap);
-    var circle_1400M_player = L.circle([player_lat, player_lon], {
+    var circle_180M_player = L.circle([player_lat, player_lon], {
         color: 'blue',
         fillColor: '#fff',
         fillopacity: 1,
-        radius: 2250000
+        radius: 290000
     }).addTo(mymap);
-    var circle_2000M_player = L.circle([player_lat, player_lon], {
-        color: 'purple',
+    var circle_360M_player = L.circle([player_lat, player_lon], {
+        color: 'orange',
         fillColor: '#fff',
         fillopacity: 1,
-        radius: 3216000
+        radius: 580000
+    }).addTo(mymap);
+    var circle_1400M_player = L.circle([player_lat, player_lon], {
+        color: 'red',
+        fillColor: '#fff',
+        fillopacity: 1,
+        radius: 2250000
     }).addTo(mymap);
 }
 
@@ -90,12 +72,9 @@ function markschools() {
 }
 
 function getColor(d) {
-    return d === '100 miles'  ? 'red' :
-           d === '250 miles'  ? 'orange' :
-           d === '500 miles' ? 'yellow' :
-           d === '1000 miles' ? 'green' :
-           d === '1400 miles' ? 'blue' :
-           d === '2000 miles' ? 'purple' :
+    return d === '180 miles'  ? 'blue' :
+           d === '360 miles'  ? 'orange' :
+           d === '1400 miles' ? 'red' :
                                 '#FFFFFF';
 }
 
@@ -103,8 +82,8 @@ var legend = L.control({position: 'bottomright'});
 legend.onAdd = function (mymap) {
 
     var div = L.DomUtil.create('div', 'info legend');
-    labels = ['<strong>Distance</strong>'],
-    categories = ['100 miles','250 miles','500 miles','1000 miles', '1400 miles', '2000 miles'];
+    labels = ['<strong>Distance</strong>'];
+    categories = ['180 miles','360 miles', '1400 miles'];
 
     for (var i = 0; i < categories.length; i++) {
 
