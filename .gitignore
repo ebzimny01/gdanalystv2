@@ -1433,3 +1433,4 @@ node_modules/wrappy/README.md
 node_modules/wrappy/wrappy.js
 .vscode/launch.json
 dump.rdb
+*.pyc
