@@ -4,7 +4,7 @@ Production Settings for Heroku
 
 import environ
 import os
-import urllib.parse
+from urllib.parse import urlparse
 
 # If using in your own project, update the project namespace below
 from gd.settings import *
