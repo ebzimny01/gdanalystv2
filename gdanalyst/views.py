@@ -1,4 +1,10 @@
 import json, requests, urllib.parse
+import django_rq
+import django_redis
+from django.urls import reverse
+from urllib.parse import urlencode
+from rq.job import Job
+from django_redis import get_redis_connection
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from bs4 import BeautifulSoup
@@ -174,10 +180,11 @@ def gameid(request):
 
 def pbp(request):
     gid = request.GET['gameid']
-    gid_result = get_pbp(gid)
-    return render(request, "gdanalyst/gameresult.html", {
-        "result": gid_result
-    })
+    gid_result = get_pbp.delay([gid])
+    base_url = reverse("loading_game_results")
+    query_string = urlencode({'jobid': gid_result.id})
+    url = "{}?{}".format(base_url, query_string)
+    return redirect(url)
 
 def teamschedule(request, wisid):
     wid = School.objects.get(wis_id=wisid)
@@ -189,21 +196,48 @@ def teamschedule(request, wisid):
         "schedule": schedule_table
     })
 
+
 def get_all_results(request, wisid):
     schedule_table = get_schedule_table(wisid)
-    sch_results = []
+    results_job = ""
     if "all" in request.path:
+        tmp = []
         for each in schedule_table:
             if each[6] != "#":
-                tmp = get_pbp(each[5])
-                sch_results = sch_results + tmp
+                tmp.append(each[6]) 
+        results_job =  get_pbp.delay(tmp)
     elif "humans" in request.path:
+        tmp = []
         for each in schedule_table:
             if each[4] != "Sim AI" and each[6] != "#":
-                tmp = get_pbp(each[6])
-                sch_results = sch_results + tmp
+                tmp.append(each[6]) 
+        results_job =  get_pbp.delay(tmp)
+    base_url = reverse("loading_game_results")
+    query_string = urlencode({'jobid': results_job.id})
+    url = "{}?{}".format(base_url, query_string)
+    return redirect(url)
+
+
+def loading_game_results(request):
+    job_id = request.GET.get('jobid')
+    return render(request, "gdanalyst/gameresultsloading.html", {
+        "job_id": job_id
+    })
+
+
+def jobstatus(request, jobid):
+    # This is using native redis-cli
+    # conn = get_redis_connection("default")
+    conn = django_rq.get_connection('default')
+    job = Job.fetch(jobid, connection=conn)
+    return HttpResponse(job.get_status())
+
+
+def display_game_results(request, jobid):
+    conn = django_rq.get_connection('default')
+    job = Job.fetch(jobid, connection=conn)
     return render(request, "gdanalyst/gameresult.html", {
-        "result": sch_results
+        "result": job.result
     })
 
 def get_schedule_table(wisid):

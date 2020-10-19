@@ -9,10 +9,11 @@ html5lib
 lxml
 nltk
 node
-numpy
-pandas
 progress
 psycopg2
 regex
 requests
 whitenoise
+redis
+django-rq
+django-redis

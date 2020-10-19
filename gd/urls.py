@@ -18,5 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('gdapp_admin/', admin.site.urls),
-    path('', include('gdanalyst.urls'))
+    path('', include('gdanalyst.urls')),
+    path('django-rq/', include('django_rq.urls'))
 ]
