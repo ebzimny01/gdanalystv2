@@ -13,17 +13,22 @@
         var jobUrl = "{% url 'jobstatus' jobid=job_id %}";
         var dots = 1;
         var progressTitle = document.getElementById('gameresultsjobid');
-        updateProgressTitle();
+        var progressText = 'Requesting game results '
+        updateProgressTitle(progressText);
         var timer = setInterval(function() {
-            updateProgressTitle();
+            updateProgressTitle(progressText);
             axios.get(jobUrl)
                 .then(function(response){
                     var jobStatus = response.data
                     if (jobStatus === 'finished') {
-                        clearTimer('Finished loading game results');
+                        clearTimer('Finished loading game results.');
                         window.location.replace("{% url 'display_game_results' jobid=job_id %}");
                     } else if (jobStatus === 'failed') {
                     clearTimer('An error occurred');
+                    } else if (jobStatus === 'queued') {
+                        progressText = 'Your request for game results has been queued ';
+                    } else if (jobStatus === 'started') {
+                        progressText = 'Starting to process game results ';
                     }
                 })
                 .catch(function(err){
@@ -32,12 +37,12 @@
                 });
             }, 800);
 
-        function updateProgressTitle() {
+        function updateProgressTitle(message) {
             dots++;
             if (dots > 3) {
             dots = 1;
             }
-            progressTitle.innerHTML = 'Loading game results ';
+            progressTitle.innerHTML = message;
             for (var i = 0; i < dots; i++) {
             progressTitle.innerHTML += '.';
             }
