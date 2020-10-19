@@ -3,6 +3,8 @@ Production Settings for Heroku
 """
 
 import environ
+import os
+import urlparse
 
 # If using in your own project, update the project namespace below
 from gd.settings import *
@@ -24,4 +26,20 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 DATABASES = {
     # read os.environ['DATABASE_URL'] and raises ImproperlyConfigured exception if not found
     'default': env.db(),
+}
+
+redis_url = urlparse.urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6959'))
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port), 
+        'TIMEOUT': 1200,
+        'OPTIONS': { 
+            'DB': 0,
+            'PASSWORD': redis_url.password,
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
+            'MAX_ENTRIES': 5000, 
+        }, 
+    },
 }

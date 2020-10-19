@@ -90,7 +90,7 @@ CACHES = {
 }
 
 RQ = {
-    'DEFAULT_RESULT_TTL': 5000,
+    'DEFAULT_RESULT_TTL': 600,
 }
 
 RQ_QUEUES = {
