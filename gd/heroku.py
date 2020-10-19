@@ -28,7 +28,7 @@ DATABASES = {
     'default': env.db(),
 }
 
-redis_url = urlparse.urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6959'))
+redis_url = urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6959'))
 
 CACHES = {
     'default': {
