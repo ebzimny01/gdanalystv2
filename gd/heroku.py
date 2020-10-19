@@ -29,6 +29,9 @@ DATABASES = {
 }
 
 redis_url = urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6959'))
+print(redis_url.hostname)
+print(redis_url.port)
+print(redis_url.password)
 
 CACHES = {
     'default': {
