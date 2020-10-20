@@ -132,6 +132,7 @@ def player(request, worldname, division):
 
 def get_distance_from_player(playerloc, teams):
     temp = {}
+    playerloc = playerloc + ', USA'
     find_location_url = 'https://nominatim.openstreetmap.org/search/' + urllib.parse.quote(playerloc) + '?format=json'
     response = requests.get(find_location_url).json()
     if len(response) == 0:

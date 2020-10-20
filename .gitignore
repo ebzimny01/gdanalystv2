@@ -1,3 +1,4 @@
+*.pyc
 staticfiles/
 db.sqlite3
 node_modules/.bin/jshint
@@ -1433,8 +1434,3 @@ node_modules/wrappy/README.md
 node_modules/wrappy/wrappy.js
 .vscode/launch.json
 dump.rdb
-*.pyc
-staticfiles/gdanalyst/data_table.69919357c7e5.js.gz
-staticfiles/gdanalyst/map.js.gz
-staticfiles/gdanalyst/player_map.js.gz
-staticfiles/staticfiles.json
