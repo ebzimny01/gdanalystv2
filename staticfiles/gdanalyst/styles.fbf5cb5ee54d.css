@@ -1,0 +1,99 @@
+#mapid { min-height: 800px; }
+#main_mapid { min-height: 800px; }
+#playermapid { min-height: 800px; }
+
+.info {
+    padding: 6px 8px;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+
+.legend {
+    line-height: 20px;
+    color: #555;
+}
+.legend i {
+    width: 20px;
+    height: 20px;
+    float: left;
+    margin-right: 8px;
+}
+
+.customClassForDropDown {
+   height: 300px;
+   overflow-y: auto;
+}
+
+#rostercount {
+   vertical-align: middle;
+   text-align: center; 
+}
+
+#distanceColumn {
+    text-align: right; 
+ }
+
+ div#main_mapid {
+    z-index: 1;
+}
+
+.dropbtn {
+background-color: #4CAF50;
+color: white;
+padding: 16px;
+font-size: 16px;
+border: none;
+cursor: pointer;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+background-color: #3e8e41;
+}
+
+#myInput {
+box-sizing: border-box;
+background-image: url("searchicon.764c604f2770.png");
+background-position: 14px 12px;
+background-size: 21px 21px;
+background-repeat: no-repeat;
+font-size: 16px;
+padding: 14px 20px 12px 45px;
+border: none;
+border-bottom: 1px solid #ddd;
+}
+
+#myInput:focus {outline: 3px solid #ddd;}
+
+.dropdown {
+position: relative;
+display: inline-block;
+z-index: 2;
+}
+
+.dropdown-content {
+display: none;
+position: absolute;
+background-color: #f6f6f6;
+min-width: 230px;
+overflow: auto;
+border: 1px solid #ddd;
+z-index: 2;
+}
+
+.dropdown-content a {
+color: black;
+padding: 12px 16px;
+text-decoration: none;
+display: block;
+z-index: 2;
+}
+
+.dropdown a:hover {background-color: #ddd;}
+
+.show {display: block;}
