@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['127.0.0.1']
 
 INSTALLED_APPS = [
     'gdanalyst',
+    'django_rq',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,12 +77,56 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gd.wsgi.application'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/1', 
+        'TIMEOUT': 1200,
+        'OPTIONS': { 
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
+            'MAX_ENTRIES': 5000, 
+        }, 
+    },
+}
+
+RQ = {
+    'DEFAULT_RESULT_TTL': 600,
+}
+
+RQ_QUEUES = {
+    'default': {
+        'USE_REDIS_CACHE': 'default',
+    },
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+RQ_SHOW_ADMIN_LINK = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'rq_console': {
+            'format': '%(asctime)s %(message)s',
+            'datefmt': '%H:%M:%S',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+        },
+        'rq_console': {
+            'level': 'DEBUG',
+            'class': 'rq.utils.ColorizingStreamHandler',
+            'formatter': 'rq_console',
+            'exclude': ['%(asctime)s'],
+        },
+    },
+    'loggers': {
+        'rq.worker': {
+            'handlers': ['rq_console'],
+            'level': 'DEBUG'
         },
     },
     'root': {

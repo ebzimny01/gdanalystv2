@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>GD Analyst</title>
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet"/>
+        <link href="{% static 'gdanalyst/loading.css' %}" rel="stylesheet">
+    </head>
+    <body>    
+        <div class="container h-100">
+            <div class="row h-100 justify-content-center">
+                <div class="col-3 spinner-box align-self-center">
+                    <img src="{% static 'gdanalyst/football.png' %}" class="football-spinner">
+                </div>
+                <div class="col display-4 text-white align-self-center" id="gameresultsjobid"></div>
+            </div>
+        </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    {% if job_id %}
+    <script>
+        var jobUrl = "{% url 'jobstatus' jobid=job_id %}";
+        var dots = 1;
+        var progressTitle = document.getElementById('gameresultsjobid');
+        var progressText = 'Requesting game results '
+        updateProgressTitle(progressText);
+        var timer = setInterval(function() {
+            updateProgressTitle(progressText);
+            axios.get(jobUrl)
+                .then(function(response){
+                    var jobStatus = response.data
+                    if (jobStatus === 'finished') {
+                        clearTimer('Finished loading game results.');
+                        window.location.replace("{% url 'display_game_results' jobid=job_id %}");
+                    } else if (jobStatus === 'failed') {
+                    clearTimer('An error occurred');
+                    } else if (jobStatus === 'queued') {
+                        progressText = 'Your request for game results has been queued ';
+                    } else if (jobStatus === 'started') {
+                        progressText = 'Starting to process game results ';
+                    }
+                })
+                .catch(function(err){
+                    console.log('err', err);
+                    clearTimer('An error occurred');
+                });
+            }, 800);
+
+        function updateProgressTitle(message) {
+            dots++;
+            if (dots > 3) {
+            dots = 1;
+            }
+            progressTitle.innerHTML = message;
+            for (var i = 0; i < dots; i++) {
+            progressTitle.innerHTML += '.';
+            }
+        }
+        function clearTimer(message) {
+            clearInterval(timer);
+            progressTitle.innerHTML = message;
+        }
+    </script>
+    {% endif %}
+    </body>
+</html>

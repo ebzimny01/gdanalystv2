@@ -16,5 +16,8 @@ urlpatterns = [
     path("pbp", views.pbp, name="pbp"),
     path("<int:wisid>/schedule/all", views.get_all_results, name="get_all_results"),
     path("<int:wisid>/schedule/humans", views.get_all_results, name="get_all_results"),
-    path("coach/<str:coachid>", views.coach, name="coach")
+    path("coach/<str:coachid>", views.coach, name="coach"),
+    path("job/<str:jobid>", views.jobstatus, name="jobstatus"),
+    path("loadinggameresults", views.loading_game_results, name="loading_game_results"),
+    path("displaygameresults/<str:jobid>", views.display_game_results, name="display_game_results")
 ]

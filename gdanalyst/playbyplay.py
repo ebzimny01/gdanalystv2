@@ -1,103 +1,109 @@
 import requests, urllib.parse, html5lib, lxml, re, datetime
 from bs4 import BeautifulSoup
 import nltk
+import django_rq
+import django_redis
+from django_rq import job
 from nltk import tokenize
-nltk.download('punkt')
+# nltk.download('punkt')
 # import pandas as pd
 from .models import School
 
-def get_pbp(gid):
-    game_baseURL = "https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid="
-    gamepage = requests.get(game_baseURL + str(gid))
-    gamepage_soup = BeautifulSoup(gamepage.content, "html.parser")
-    team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
-    team_away_href = team_away_tag.attrs['href']
-    team_away_href_re = re.search(r'(\d{5})', team_away_href)
-    team_away_id = team_away_href_re.group(1)
-    team_away_mod = School.objects.get(wis_id=team_away_id)
-    team_away = team_away_mod.school_long
-    team_away_short = team_away_mod.school_short
-    team_home_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkHomeTeam")
-    team_home_href = team_home_tag.attrs['href']
-    team_home_href_re = re.search(r'(\d{5})', team_home_href)
-    team_home_id = team_home_href_re.group(1)
-    team_home_mod = School.objects.get(wis_id=team_home_id)
-    team_home = team_home_mod.school_long
-    team_home_short = team_home_mod.school_short
-    
-    # variable to keep track of which team is on offense
-    offense = ""
-    print(f"Away Team = {team_away}")
-    print(f"Home Team = {team_home}")
+@job
+def get_pbp(gid_list):
+    # table to collect details for all GIDs in list
+    all_table_data = []
 
-    pbp_baseURL = "https://www.whatifsports.com/gd/GameResults/PlayByPlay.aspx?gid="
-    pbp_q_suffix = ['&quarter=1&view=1', '&quarter=2&view=1', '&quarter=3&view=1', '&quarter=4&view=1']
-    
-    # variable to keep track of which quarter is being evaluated
-    quarter = 1
+    for gid in gid_list:
+        game_baseURL = "https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid="
+        gamepage = requests.get(game_baseURL + str(gid))
+        gamepage_soup = BeautifulSoup(gamepage.content, "html.parser")
+        team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
+        team_away_href = team_away_tag.attrs['href']
+        team_away_href_re = re.search(r'(\d{5})', team_away_href)
+        team_away_id = team_away_href_re.group(1)
+        team_away_mod = School.objects.get(wis_id=team_away_id)
+        team_away = team_away_mod.school_long
+        team_away_short = team_away_mod.school_short
+        team_home_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkHomeTeam")
+        team_home_href = team_home_tag.attrs['href']
+        team_home_href_re = re.search(r'(\d{5})', team_home_href)
+        team_home_id = team_home_href_re.group(1)
+        team_home_mod = School.objects.get(wis_id=team_home_id)
+        team_home = team_home_mod.school_long
+        team_home_short = team_home_mod.school_short
+        
+        # variable to keep track of which team is on offense
+        offense = ""
+        print(f"Away Team = {team_away}")
+        print(f"Home Team = {team_home}")
 
-    # table to collect details
-    table_data = []
+        pbp_baseURL = "https://www.whatifsports.com/gd/GameResults/PlayByPlay.aspx?gid="
+        pbp_q_suffix = ['&quarter=1&view=1', '&quarter=2&view=1', '&quarter=3&view=1', '&quarter=4&view=1']
+        
+        # table to collect details for single GID
+        table_data = []
 
-    for q in pbp_q_suffix:
-        pbpURL = pbp_baseURL + str(gid) + q
-        print(pbpURL)
-        pbprawpage = requests.get(pbpURL)
+        # variable to keep track of which quarter is being evaluated
+        quarter = 1
 
-        soup = BeautifulSoup(pbprawpage.content, 'html.parser')
-        pbp_table = soup.find(id="ctl00_ctl00_Main_Main_PBPTable")
-        pbp_table_rows = pbp_table.find_all("tr")
-        #print(pbp_table_rows)
+        for q in pbp_q_suffix:
+            pbpURL = pbp_baseURL + str(gid) + q
+            print(pbpURL)
+            pbprawpage = requests.get(pbpURL)
 
-        for tr in pbp_table_rows:
-            t_row = []
-            # Logic to find which team is on offense while iterating through rows
-            tmp = ""
-            if tr.find('h3'):
-                tmp = tr.find('h3').text
-            if tmp == team_away:
-                offense = team_away_short
-                # iteration of this row should end and not append to table_data
-            elif tmp == team_home:
-                offense = team_home_short
-            else:
-                game = team_away_short + " @ " + team_home_short
-                t_row.append(game)                                          # column 0
-                t_row.append(offense)                                       # column 1
-                t_row.append(quarter)                                       # column 2
-                for td in tr.find_all("td"):
-                    # first 'td' appended should be 'clock'                 # column 3
-                    if td['class'][0] == "pbpClock":
-                        # second 'td' appended should be 'ball on'  
-                        clock_str = td.text
-                        try:
-                            clock_obj = datetime.datetime.strptime(clock_str, '%M:%S')
-                        except:
-                            clock_obj = datetime.datetime.strptime("0:00", '%M:%S')
-                        t_row.append(clock_obj.strftime('%M:%S'))           # column 4
-                    elif td['class'][0] == "pbpDownDistance" and td.text[0] != "\xa0":
-                        t_row.append(int(td.text[0]))                       # column 5 (down)
-                        x = len(td.text)
-                        t_row.append(int(td.text[(x - 2):x]))               # column 6 (distance)
-                    
-                    # continue parsing
-                    # at this point the next item to append should be the play by play details which require special parsing
-                    # i'm thinking of passing this off to separate function to parse
-                    elif td['class'][0] == "pbpPlay" and td.find(class_='playHeader') != None:
-                        parsed = parse_pbp(td)
-                        for p in parsed:
-                            t_row.append(p)
-                    else:
-                        t_row.append(td.text)
-                #print(t_row)
-                #append entire row of data to data_table
-                if len(t_row) == 29:
-                    table_data.append(t_row)
-        quarter += 1
+            soup = BeautifulSoup(pbprawpage.content, 'html.parser')
+            pbp_table = soup.find(id="ctl00_ctl00_Main_Main_PBPTable")
+            pbp_table_rows = pbp_table.find_all("tr")
+            #print(pbp_table_rows)
 
-    #for i in table_data:
-    #    print(i)
-    return table_data
+            for tr in pbp_table_rows:
+                t_row = []
+                # Logic to find which team is on offense while iterating through rows
+                tmp = ""
+                if tr.find('h3'):
+                    tmp = tr.find('h3').text
+                if tmp == team_away:
+                    offense = team_away_short
+                    # iteration of this row should end and not append to table_data
+                elif tmp == team_home:
+                    offense = team_home_short
+                else:
+                    game = team_away_short + " @ " + team_home_short
+                    t_row.append(game)                                          # column 0
+                    t_row.append(offense)                                       # column 1
+                    t_row.append(quarter)                                       # column 2
+                    for td in tr.find_all("td"):
+                        # first 'td' appended should be 'clock'                 # column 3
+                        if td['class'][0] == "pbpClock":
+                            # second 'td' appended should be 'ball on'  
+                            clock_str = td.text
+                            try:
+                                clock_obj = datetime.datetime.strptime(clock_str, '%M:%S')
+                            except:
+                                clock_obj = datetime.datetime.strptime("0:00", '%M:%S')
+                            t_row.append(clock_obj.strftime('%M:%S'))           # column 4
+                        elif td['class'][0] == "pbpDownDistance" and td.text[0] != "\xa0":
+                            t_row.append(int(td.text[0]))                       # column 5 (down)
+                            x = len(td.text)
+                            t_row.append(int(td.text[(x - 2):x]))               # column 6 (distance)
+                        
+                        # continue parsing
+                        # at this point the next item to append should be the play by play details which require special parsing
+                        # i'm thinking of passing this off to separate function to parse
+                        elif td['class'][0] == "pbpPlay" and td.find(class_='playHeader') != None:
+                            parsed = parse_pbp(td)
+                            for p in parsed:
+                                t_row.append(p)
+                        else:
+                            t_row.append(td.text)
+                    #print(t_row)
+                    #append entire row of data to data_table
+                    if len(t_row) == 29:
+                        table_data.append(t_row)
+            quarter += 1
+        all_table_data += table_data
+    return all_table_data
 
 def parse_pbp(p):
     result = []
