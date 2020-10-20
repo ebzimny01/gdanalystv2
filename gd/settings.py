@@ -28,6 +28,8 @@ SECRET_KEY = 'scljzyo#ikciglh@5_lq%byil@v*8d26m$$x828*!k*e$3z=_$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+DEBUG_PROPAGATE_EXCEPTIONS = True
+
 ALLOWED_HOSTS = ['127.0.0.1']
 
 
