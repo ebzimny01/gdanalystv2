@@ -57,9 +57,9 @@
                         </tr>
                     </table>
                 </div>
-                <form action="/world/{{ wid.world }}/{{ wid.division }}/player" id="player_div_form" method="GET">
+                <form action="/world/{{ wid.world }}/{{ wid.division }}/player" id="player_div_form" method="GET" class="needs-validation" novalidate>
                     <div class="input-group">
-                        <input type="text" name="recruit" id="recruitid" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="Enter recruit ID #">
+                        <input type="text" name="recruit" id="recruitid" class="form-control" class="form-control" minlength="8" maxlength="8" pattern="^[\d]{8}" placeholder="8-digit recruit ID" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
                         <button type="submit" form="player_div_form" class="ml-2 btn btn-success">Map Recruit</button>
                     </div>
                 </form>
@@ -97,5 +97,6 @@
     </div>
     <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-    <script src="{% static 'gdanalyst/map.js' %}"></script>     
+    <script src="{% static 'gdanalyst/map.js' %}"></script>
+    <script src="{% static 'gdanalyst/formvalidation.js' %}"></script>
 {% endblock %}

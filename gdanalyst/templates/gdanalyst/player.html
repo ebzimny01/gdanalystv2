@@ -10,12 +10,12 @@
 {% block body %}
     <div class="row">
         <div class="h1 col p-2 m-3 bg-info text-white" id="playername">{{ player }}</div>
-        <form action="/world/{{ world }}/{{ division }}/player" id="player_div_form" method="GET">
+        <form action="/world/{{ world }}/{{ division }}/player" id="player_div_form" method="GET" class="needs-validation" novalidate>
             <div class="col p-2 my-3 input-group input-group-lg">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-lg">Enter recruit ID #:</span>
                 </div>
-                <input type="text" name="recruit" id="reecruitid" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg">
+                <input type="text" name="recruit" id="reecruitid" class="form-control" minlength="8" maxlength="8" pattern="^[\d]{8}" placeholder="8-digit recruit ID" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" required>
                 <button type="submit" form="player_div_form" class="mr-5 ml-2 btn btn-success btn-lg">Map Recruit</button>
             </div>
         </form>
@@ -53,5 +53,6 @@
     </div>  
     <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-    <script src="{% static 'gdanalyst/player_map.js' %}"></script>    
+    <script src="{% static 'gdanalyst/player_map.js' %}"></script>
+    <script src="{% static 'gdanalyst/formvalidation.js' %}"></script>  
 {% endblock %}

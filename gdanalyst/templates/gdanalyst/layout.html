@@ -10,12 +10,18 @@
             integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
             crossorigin=""/>
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'gdanalyst/apple-touch-icon.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'gdanalyst/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'gdanalyst/favicon-16x16.png' %}">
+        <link rel="manifest" href="{% static 'gdanalyst/site.webmanifest' %}">
         {% block styles %}
         {% endblock %}
     </head>
     <body>
-        <nav class="navbar navbar-light bg-light">
-            <a class="navbar-brand mb-0 h1" href="{% url 'index' %}">GD Analyst Home</a>
+        <nav class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{% static 'gdanalyst/gdalogonavbar.jpg' %}" height="30" alt="GD Analyst">
+              </a>
             <div class="navbar-nav">
                 <a class="nav-item nav-link" href="{% url 'gameid' %}">Game Analysis</a>
             </div>

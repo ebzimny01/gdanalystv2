@@ -11,18 +11,18 @@
 
 {% block body %}
 
-<div class="container h-100">
+<div class="container h-100 mt-5">
     <div class="row h-100 justify-content-center align-items-center">
         <div class="index_form">
-            <form action="pbp" id="gameid_form" method="GET">
-                <div class="form-group">
-                    <input type="text" name="gameid" id="gameid" class="form-control" placeholder="Enter Game ID" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"></input>
-                <div class="form-group">
+            <form action="pbp" id="gameid_form" method="GET" class="needs-validation" novalidate>
+                <div class="form-group m-1">
+                    <input type="text" name="gameid" id="gameid" class="form-control" minlegth="7" maxlength="7" pattern="^[\d]{7}" placeholder="Enter 7-digit Game ID" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" required></input>
+                <div class="form-group m-1">
                     <button type="submit" form="gameid_form" class="btn btn-info btn-lg btn-block">Continue</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
+<script src="{% static 'gdanalyst/formvalidation.js' %}"></script>
 {% endblock %}
