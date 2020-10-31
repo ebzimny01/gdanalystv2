@@ -1,5 +1,6 @@
 import requests, urllib.parse, html5lib, lxml, re, datetime
 from bs4 import BeautifulSoup
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 import nltk
 import django_rq
 import django_redis
@@ -19,6 +20,7 @@ def get_pbp(gid_list):
         gamepage = requests.get(game_baseURL + str(gid))
         gamepage_soup = BeautifulSoup(gamepage.content, "html.parser")
         team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
+        # If an invalid Game ID is entered, this next line will fail with KeyError exception
         team_away_href = team_away_tag.attrs['href']
         team_away_href_re = re.search(r'(\d{5})', team_away_href)
         team_away_id = team_away_href_re.group(1)

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'log_request_id.middleware.RequestIDMiddleware',
     'django.middleware.security.SecurityMiddleware',
     # Simplified static file serving.
     # https://warehouse.python.org/project/whitenoise/
@@ -105,18 +106,32 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 RQ_SHOW_ADMIN_LINK = True
 
+LOG_REQUEST_ID_HEADER = 'HTTP_X_REQUEST_ID'
+LOG_REQUESTS = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'request_id': {
+            '()': 'log_request_id.filters.RequestIDFilter'
+        }
+    },
     'formatters': {
         'rq_console': {
             'format': '%(asctime)s %(message)s',
             'datefmt': '%H:%M:%S',
         },
+        'standard': {
+            'format': '%(levelname)-8s [%(asctime)s] [%(request_id)s] %(name)s: %(message)s'
+        },
     },
     'handlers': {
         'console': {
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
+            'filters': ['request_id'],
+            'formatter': 'standard',
         },
         'rq_console': {
             'level': 'DEBUG',
@@ -129,6 +144,11 @@ LOGGING = {
         'rq.worker': {
             'handlers': ['rq_console'],
             'level': 'DEBUG'
+        },
+        'log_request_id.middleware': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     },
     'root': {
