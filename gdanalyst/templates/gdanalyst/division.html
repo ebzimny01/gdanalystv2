@@ -14,15 +14,24 @@
         <div class="h1 col p-2 ml-3 bg-primary text-white">{{ world }} {{ division }} ({{ coachcount }} human coaches)</div>
     </div>
     <div class="row align-items-center">
-        <form action="/world/{{ world }}/{{ division }}/player" id="player_div_form" method="GET" class="needs-validation" novalidate>
-            <div class="col p-2 ml-3 input-group input-group-lg">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="inputGroup-sizing-lg">Enter recruit ID #:</span>
-                </div>
-                <input type="text" name="recruit" id="reecruitid" class="form-control" minlength="8" maxlength="8" pattern="^[\d]{8}" placeholder="8-digit recruit ID" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" required>
-                <button type="submit" form="player_div_form" class="ml-2 btn btn-success btn-lg">Map Recruit</button>
+        <div class="col">
+            <div class="row">
+                <form action="/world/{{ world }}/{{ division }}/player" id="player_div_form" method="GET" class="needs-validation" novalidate>
+                    <div class="p-2 ml-3 input-group input-group-lg">
+                        <input type="text" name="recruit" id="recruitid" class="form-control" class="form-control" minlength="8" maxlength="8" pattern="^[\d]{8}" placeholder="8-digit recruit ID" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
+                        <button type="submit" form="player_div_form" class="ml-2 btn btn-success btn-lg">Map Recruit</button>
+                    </div>
+                </form>
             </div>
-        </form>
+            <div class="row">
+                <form action="/world/{{ world }}/{{ division }}/town" id="town_div_form" method="GET" class="needs-validation" novalidate>
+                    <div class="p-2 ml-3 input-group input-group-lg">
+                        <input type="text" name="town" id="town_name" class="form-control" class="form-control" minlength="1" maxlength="64" placeholder="City, ST" pattern="[\w\s]*, [A-Z]{2}" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
+                        <button type="submit" form="town_div_form" class="ml-2 btn btn-success btn-lg">Map by City</button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <div class="col"></div>
         <div class="col dropdown">
             <button onclick="myFunction()" class="btn btn-secondary btn-lg dropbtn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
