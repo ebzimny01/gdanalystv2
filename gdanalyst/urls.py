@@ -12,6 +12,7 @@ urlpatterns = [
     path("world/<str:worldname>/<str:division>", views.division, name="division"),
     path("location/<int:wisid>", views.location, name="location"),
     path("world/<str:worldname>/<str:division>/player", views.player, name="player"),
+    path("world/<str:worldname>/<str:division>/town", views.town, name="town"),
     path("gameid", views.gameid, name="gameid"),
     path("pbp", views.pbp, name="pbp"),
     path("<int:wisid>/schedule/all", views.get_all_results, name="get_all_results"),

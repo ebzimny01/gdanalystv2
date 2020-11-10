@@ -1,0 +1,64 @@
+{% extends "gdanalyst/layout.html" %}
+{% load static %}
+
+{% block title %}
+    {{ school }}
+{% endblock %}
+{% block styles %}
+    <link href="{% static 'gdanalyst/styles.css' %}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="h1 col p-2 m-3 bg-info text-white" id="playername">{{ hometown }}</div>
+        <form action="/world/{{ world }}/{{ division }}/player" id="player_div_form" method="GET" class="needs-validation" novalidate>
+            <div class="col p-2 my-3 input-group input-group-lg">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-lg">Enter recruit ID #:</span>
+                </div>
+                <input type="text" name="recruit" id="reecruitid" class="form-control" minlength="8" maxlength="8" pattern="^[\d]{8}" placeholder="8-digit recruit ID" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" required>
+                <button type="submit" form="player_div_form" class="mr-5 ml-2 btn btn-success btn-lg">Map Recruit</button>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div hidden id="position"></div>
+        <div hidden id="latitude">{{ player_lat }}</div>
+        <div hidden id="longitude">{{ player_lon }}</div>
+        <div class="col pl-3 bg-transparent text-dark">World: {{ world }} {{ division }} ({{ coachcount }} human coaches)</div>
+        <div hidden id="wisid">{{ playerid }}</div>
+        <form action="/world/{{ world }}/{{ division }}/town" id="town_div_form" method="GET" class="needs-validation" novalidate>
+            <div class="col p-2 my-3 input-group input-group-lg">
+                <input type="text" name="town" id="town_name" class="form-control" class="form-control" minlength="1" maxlength="64" placeholder="City, ST" pattern="[\w\s]*, [A-Z]{2}" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
+                <button type="submit" form="town_div_form" class="mr-5 ml-2 btn btn-success btn-lg">Map by City</button>
+            </div>
+        </form>
+    </div>
+    <hr>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-3 shadow p-3 mb-5 bg-white rounded">
+                <table>
+                    <tr>
+                        <th>School</th>
+                        <th>Coach</th>
+                        <th>Distance (miles)</th>
+                    </tr>
+                        {% for key, value in combined %}
+                        <tr>
+                            <td><a class="hct" id="{{ key }}" href="/{{ key }}">{{ value.0 }}</a></td>
+                            <td> {{ value.1 }}</td>
+                            <td id="distanceColumn"> {{ value.2 }}</td>
+                        </tr>
+                        {% endfor %}
+                </table>
+            </div>
+            <div class="col-lg-9">
+                <div id="playermapid"></div>
+            </div>
+        </div>
+    </div>  
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="{% static 'gdanalyst/player_map.js' %}"></script>
+    <script src="{% static 'gdanalyst/formvalidation.js' %}"></script>  
+{% endblock %}
