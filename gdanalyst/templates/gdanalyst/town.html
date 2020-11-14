@@ -2,81 +2,70 @@
 {% load static %}
 
 {% block title %}
-    {{world}}
+    {{ school }}
 {% endblock %}
-
 {% block styles %}
     <link href="{% static 'gdanalyst/styles.css' %}" rel="stylesheet">
 {% endblock %}
-
 {% block body %}
     <div class="row">
-        <div class="h1 col p-2 ml-3 bg-primary text-white">{{ world }} {{ division }} ({{ coachcount }} human coaches)</div>
+        <div class="h1 col p-2 m-3 bg-info text-white" id="playername">{{ hometown }}</div>
     </div>
-    <div class="row align-items-center">
+    <div class="row">
+        <div class="col p-2 m-3">
+            <div class="h4 bg-transparent text-dark">
+                World: {{ world }} {{ division }} ({{ coachcount }} human coaches)
+            </div>
+            <div hidden id="position"></div>
+            <div hidden id="latitude">{{ player_lat }}</div>
+            <div hidden id="longitude">{{ player_lon }}</div>
+            <div hidden id="wisid">{{ playerid }}</div>
+        </div>
         <div class="col">
             <div class="row">
                 <form action="/world/{{ world }}/{{ division }}/player" id="player_div_form" method="GET" class="needs-validation" novalidate>
-                    <div class="p-2 ml-3 input-group input-group-lg">
+                    <div class="m-1 input-group input-group-lg">
                         <input type="text" name="recruit" id="recruitid" class="form-control" class="form-control" minlength="8" maxlength="8" pattern="^[\d]{8}" placeholder="8-digit recruit ID" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
                         <button type="submit" form="player_div_form" class="ml-2 btn btn-success btn-lg">Map Recruit</button>
                     </div>
-                </form>
+                </form>        
             </div>
             <div class="row">
                 <form action="/world/{{ world }}/{{ division }}/town" id="town_div_form" method="GET" class="needs-validation" novalidate>
-                    <div class="p-2 ml-3 input-group input-group-lg">
+                    <div class="m-1 input-group input-group-lg">
                         <input type="text" name="town" id="town_name" class="form-control" class="form-control" minlength="1" maxlength="64" placeholder="City, ST" pattern="[\w\s]*, [A-Z]{2}" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
                         <button type="submit" form="town_div_form" class="ml-2 btn btn-success btn-lg">Map by City</button>
                     </div>
-                </form>
-            </div>
-        </div>
-        <div class="col"></div>
-        <div class="col dropdown">
-            <button onclick="myFunction()" class="btn btn-secondary btn-lg dropbtn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Choose school...
-            </button>
-            <div id="myDropdown" class="dropdown-content customClassForDropDown" aria-labelledby="dropdownMenuButton">
-                <input type="text" placeholder="Search..." id="myInput" onkeyup="filterFunction()">
-                {% for school in schools %}
-                    <a class="dropdown-item" href="/{{ school.wis_id }}">{{ school.school_short }}</a>
-                {% endfor %}
+                </form>                        
             </div>
         </div>
     </div>
     <hr>
-    <div class="shadow p-3 m-3 bg-white rounded" id="main_mapid"></div>
-    <div hidden class="container-fluid">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-lg-3 shadow p-3 mb-5 bg-white rounded">
                 <table>
                     <tr>
                         <th>School</th>
-                        <th>ID</th>
                         <th>Coach</th>
-                        <th>Lat</th>
-                        <th>Lon</th>
+                        <th>Distance (miles)</th>
                     </tr>
-                        {% for school in schools %}
+                        {% for key, value in combined %}
                         <tr>
-                            <td>{{ school.school_short }}</td>
-                            <td><a class="hct" href="/{{ school.wis_id }}">{{ school.wis_id }}</a></td>
-                            <td>{{ school.coach }}</td>
-                            <td>{{ school.location.latitude }}</td>
-                            <td>{{ school.location.longitude }}</td>
+                            <td><a class="hct" id="{{ key }}" href="/{{ key }}">{{ value.0 }}</a></td>
+                            <td> {{ value.1 }}</td>
+                            <td id="distanceColumn"> {{ value.2 }}</td>
                         </tr>
                         {% endfor %}
                 </table>
             </div>
+            <div class="col-lg-9">
+                <div id="playermapid"></div>
+            </div>
         </div>
-    </div>
+    </div>  
     <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-    <script src="{% static 'gdanalyst/main_map.js' %}"></script>
-    <script src="{% static 'gdanalyst/formvalidation.js' %}"></script>
-{% endblock %}
-
-{% block script %}
-            <script src="{% static 'gdanalyst/buttonfilter.js' %}"></script>
+    <script src="{% static 'gdanalyst/player_map.js' %}"></script>
+    <script src="{% static 'gdanalyst/formvalidation.js' %}"></script>  
 {% endblock %}

@@ -107,7 +107,7 @@ def player(request, worldname, division):
         #print(position.text)
         #print(hometown.text)
         hct = School.objects.exclude(coach="Sim AI").filter(world=worldname).filter(division=division)
-        player_school_distance = get_distance_from_player(hometown.text, hct)
+        player_school_distance = get_distance_from(hometown.text, hct)
         if player_school_distance == 1:
             return HttpResponse(f"Could not find a location named {hometown.text}.")
         else:
@@ -130,12 +130,56 @@ def player(request, worldname, division):
                 "combined": combined_sorted
             })
 
-def get_distance_from_player(playerloc, teams):
+
+def town(request, worldname, division):
+    town_state = request.GET['town']
+    hct = School.objects.exclude(coach="Sim AI").filter(world=worldname).filter(division=division)
+    town_school_distance = get_distance_from(town_state, hct)
+    if town_school_distance == 1:
+        return HttpResponse(f"Could not find a location named {town_state}.")
+    else:
+        combined = {}
+        for each in hct:
+            combined[each.wis_id] = [each.school_short, each.coach, town_school_distance[0][each.wis_id]]
+        K = 2
+        combined_sorted = sorted(combined.items(), key=lambda x: x[1][K])
+        return render(request, "gdanalyst/town.html", {
+            "hometown": town_state,
+            "player_lat": town_school_distance[1],
+            "player_lon": town_school_distance[2],
+            "world": worldname,
+            "division": division,
+            "hct": hct,
+            "coachcount": len(hct),
+            "combined": combined_sorted
+        })
+
+def get_distance_from(player_or_loc, teams):
     temp = {}
-    playerloc = playerloc + ', USA'
-    find_location_url = 'https://nominatim.openstreetmap.org/search/' + urllib.parse.quote(playerloc) + '?format=json'
+    # Split into city and state
+    playerloc_split = player_or_loc.split(',')
+    # Town is first item in list
+    town = playerloc_split[0]
+    # State abbr is 2nd item in list and strip the leading space
+    state_abbr = playerloc_split[1].strip()
+    state_long = state_lookup(state_abbr)
+    # Concatenate town + state + country
+    playerloc =  f"{town}, {state_long}, USA"
+    # Create URL to request lookup of location
+    # Line below was old way that was not very robust and produced inconsistent results
+    # find_location_url = 'https://nominatim.openstreetmap.org/search/' + urllib.parse.quote(playerloc) + '?format=json'
+    # Line below is new way that specifies city and state specifically in the search parameters
+    find_location_url = f"https://nominatim.openstreetmap.org/search?city={town}&state={state_long}&country=USA&format=json"
+    # https://nominatim.org/release-docs/develop/api/Search/
     response = requests.get(find_location_url).json()
     if len(response) == 0:
+        # This means response is emtpy and there was a problem
+        return 1
+    # Can potentially use this to confirm the returned location is from the intended state.
+    # and return an error if they don't match.
+    returned_display_name_info = [x.strip() for x in response[0]["display_name"].split(',')]
+    if state_long not in returned_display_name_info:
+        # If the intended state is different there was a problem
         return 1
     else:
         lat = float(response[0]["lat"])
@@ -145,6 +189,62 @@ def get_distance_from_player(playerloc, teams):
             dist = round(distance(lat, loc.latitude, lon, loc.longitude))
             temp[team.wis_id] = dist
         return temp, lat, lon
+
+def state_lookup(state_abbr):
+    states = {
+        "AL":"Alabama",
+        "AK":"Alaska",
+        "AZ":"Arizona",
+        "AR":"Arkansas",
+        "CA":"California",
+        "CO":"Colorado",
+        "CT":"Connecticut",
+        "DC":"District of Columbia",
+        "DE":"Delaware",
+        "FL":"Florida",
+        "GA":"Georgia",
+        "HI":"Hawaii",
+        "ID":"Idaho",
+        "IL":"Illinois",
+        "IN":"Indiana",
+        "IA":"Iowa",
+        "KS":"Kansas",
+        "KY":"Kentucky",
+        "LA":"Louisiana",
+        "ME":"Maine",
+        "MD":"Maryland",
+        "MA":"Massachusetts",
+        "MI":"Michigan",
+        "MN":"Minnesota",
+        "MS":"Mississippi",
+        "MO":"Missouri",
+        "MT":"Montana",
+        "NE":"Nebraska",
+        "NV":"Nevada",
+        "NH":"New Hampshire",
+        "NJ":"New Jersey",
+        "NM":"New Mexico",
+        "NY":"New York",
+        "NC":"North Carolina",
+        "ND":"North Dakota",
+        "OH":"Ohio",
+        "OK":"Oklahoma",
+        "OR":"Oregon",
+        "PA":"Pennsylvania",
+        "RI":"Rhode Island",
+        "SC":"South Carolina",
+        "SD":"South Dakota",
+        "TN":"Tennessee",
+        "TX":"Texas",
+        "UT":"Utah",
+        "VT":"Vermont",
+        "VA":"Virginia",
+        "WA":"Washington",
+        "WV":"West Virginia",
+        "WI":"Wisconsin",
+        "WY":"Wyoming"
+    }
+    return states[state_abbr]
 
 # Python 3 program to calculate Distance Between Two Points on Earth 
 # From https://www.geeksforgeeks.org/program-distance-two-points-earth/#:~:text=For%20this%20divide%20the%20values,is%20the%20radius%20of%20Earth.
