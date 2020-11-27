@@ -9,6 +9,25 @@ from urllib.parse import urlparse
 # If using in your own project, update the project namespace below
 from gd.settings import *
 
+# Sentry integration
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+
+sentry_sdk.init(
+    dsn=os.environ['SENTRY_DSN'],
+    integrations=[DjangoIntegration(), RedisIntegration()],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    # traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    # send_default_pii=True
+)
+
+
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
