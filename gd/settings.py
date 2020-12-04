@@ -13,6 +13,30 @@ import django_heroku
 import os
 import logging
 from pathlib import Path
+import sentry_sdk
+
+"""
+# Sentry integration
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+
+sentry_sdk.init(
+    # This is gdanalyst-dev full URL
+    dsn="https://0282a2ff087e48ccbdf9a82abd39c3f7@o483570.ingest.sentry.io/5535558",
+    # This is what should be used by Heroku
+    dsn=os.environ['SENTRY_DSN'],
+    integrations=[DjangoIntegration(), RedisIntegration()],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
+"""
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
