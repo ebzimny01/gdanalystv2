@@ -98,7 +98,7 @@ def get_pbp(gid_list):
                             for p in parsed:
                                 t_row.append(p)
                         else:
-                            t_row.append(td.text)
+                            t_row.append(td.text) # Home Score and Away get added here which adds two more columns
                     #print(t_row)
                     #append entire row of data to data_table
                     if len(t_row) == 30:
@@ -341,8 +341,8 @@ def parse_pbp(p):
     cvr = ""            # how well is the offensive player covered
     penalty = ""        # Was a penalty committed on the play
     td = ""             # Was there a Touchdown scored on the play
-    yg = ""             # Yards gained on play
-    ypen = ""             # Penalty yards on play
+    yg = 0             # Yards gained on play
+    ypen = 0             # Penalty yards on play
 
     # If sentence count = 1 then result of play is either a presnap PENALTY, spike the ball, or takes a knee
     if len(t_sentences) == 1:
@@ -352,6 +352,7 @@ def parse_pbp(p):
             penalty_info = re.search(r"^(\s?PENALTY).*\(([a-zA-z' ]*)\), (\w*\s?\w*), (\-?\d{1,2})", only_sent_text)
             penalty = penalty_info.group(3)
             ypen = penalty_info.group(4)
+            yg = ""
         elif "spikes the ball" in only_sent_text:
             ot = "Ps"
             pass_result = "I"
@@ -359,6 +360,7 @@ def parse_pbp(p):
             opm_find = re.search(r"([a-zA-z'\- ]*) spikes the ball", only_sent_text)
             opm = opm_find.group(1)
             opm = find_off(opm, off_players)
+            yg = 0
         elif "takes a knee" in only_sent_text:
             ot = "Rn"
             rd = "Knee"
@@ -533,14 +535,14 @@ def parse_pbp(p):
     
     if len(t_sentences) > 1 and "PENALTY" in t and "yards, enforced at" in t:
         # g1 = player name, g2 = type of penalty, g3 = yards
-        penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(\w*\s?\w*),?\s(\-?\d{1,2})", t)
+        penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(\w*\s?\w*\s?\w*),?\s(\-?\d{1,2})", t)
         penalty = penalty_info.group(2)
         ypen = penalty_info.group(3)
-    elif len(t_sentences) > 1 and "PENALTY" in t and "yard, enforce at" not in t:
-        penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(.*)\.", t)
+    elif len(t_sentences) > 1 and "PENALTY" in t and "yard Penalty added to the end of the play" in t:
+        # g1 = player name, g2 = type of penalty, g3 = yards
+        penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(.*)\.\s(\d{1,2}) yard Penalty added to the end of the play\.", t)
         penalty = penalty_info.group(2)
-        penalty_yards_find = re.search(r"(\d{1,2}) yard Penalty added to the end of the play\.", t)
-        ypen = penalty_yards_find.group(1)
+        ypen = penalty_info.group(3)
     
 
     if "FUMBLE" in t:
