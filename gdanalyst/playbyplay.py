@@ -101,7 +101,7 @@ def get_pbp(gid_list):
                             t_row.append(td.text)
                     #print(t_row)
                     #append entire row of data to data_table
-                    if len(t_row) == 29:
+                    if len(t_row) == 30:
                         table_data.append(t_row)
             quarter += 1
         all_table_data += table_data
@@ -209,8 +209,6 @@ def parse_pbp(p):
             'WR2': '',
             'WR3': ''
         }
-    result.append(offense)  # index 0
-    
     # find offensive player names and positions included in the play
     off_player_raw_text = p.find(id="offense").text
     for pos, name in off_players.items():
@@ -224,7 +222,6 @@ def parse_pbp(p):
     # defensive formation
     r = re.search('\xa0DEF: (.*)', off_def_text)
     defense = r.group(1)
-    result.append(defense)  # index 1
 
     if defense == "3-4":
         def_players = {
@@ -327,22 +324,62 @@ def parse_pbp(p):
     # splits out text into list of sentences
     t_sentences = tokenize.sent_tokenize(t)
     
+    # Column variables
+    dt = ""             # defensive type
+    blitz = ""          # if def blitzes this stores position that is blitzing
+    ot = ""             # offensive type
+    rd = ""             # run play direction
+    pressure = ""       # defensive pressure on QB
+    pd = ""             # pass play depth
+    pass_result = ""    # result of pass play
+    pass_detail = ""    # more pass play details
+    turnover = ""       # turnover?
+    sack = ""           # was QB sacked
+    opm = ""            # offensive play maker
+    dpm = ""            # defensive play maker
+    cvrg = ""           # defensive player in coverage
+    cvr = ""            # how well is the offensive player covered
+    penalty = ""        # Was a penalty committed on the play
+    td = ""             # Was there a Touchdown scored on the play
+    yg = ""             # Yards gained on play
+    ypen = ""             # Penalty yards on play
+
+    # If sentence count = 1 then result of play is either a presnap PENALTY, spike the ball, or takes a knee
+    if len(t_sentences) == 1:
+        only_sent_text = t_sentences[0]
+        if "PENALTY" in only_sent_text:
+            # g1 = PENALTY, g2 = player name, g3 = type of penalty, g4 = yards
+            penalty_info = re.search(r"^(\s?PENALTY).*\(([a-zA-z' ]*)\), (\w*\s?\w*), (\-?\d{1,2})", only_sent_text)
+            penalty = penalty_info.group(3)
+            ypen = penalty_info.group(4)
+        elif "spikes the ball" in only_sent_text:
+            ot = "Ps"
+            pass_result = "I"
+            pass_detail = "Spike"
+            opm_find = re.search(r"([a-zA-z'\- ]*) spikes the ball", only_sent_text)
+            opm = opm_find.group(1)
+            opm = find_off(opm, off_players)
+        elif "takes a knee" in only_sent_text:
+            ot = "Rn"
+            rd = "Knee"
+            opm_find = re.search(r"([a-zA-z'\- ]*) takes a knee", only_sent_text)
+            opm = opm_find.group(1)
+            opm = find_off(opm, off_players)
+
     dt_dict = {
-        # first sentence is always focused on defensive play type
-        "Defense lines up for a run.": "Run",
+        # first sentence is always focused on defensive play type if sentence count > 1
+        "Defense lines up for a run.": "Rn",
         "Defense lines up for a pass with a cover Short.": "PsS",
         "Defense lines up for a pass with a cover Medium.": "PsM",
         "Defense lines up for a pass with a cover Long.": "PsL"
     }
     
     # sets defensive tendancy run or pass short, medium, long
-    dt = ""
     if t_sentences[0] in dt_dict:
         dt = dt_dict[t_sentences[0]]
-    result.append(dt)       # index 2
+    
     
     # if defense blitzes this will be second sentence
-    blitz = ""
     if len(t_sentences) > 1:
         if "Blitz" in t_sentences[1]:
             # this grabs the player's name who is blitzing
@@ -354,14 +391,12 @@ def parse_pbp(p):
                         blitz = pos
             else:
                 blitz = "ERR"
+                print(f"Error(7) using regular expression to find blitzing player in:\n{t}")
     else:
         blitz = ""
-    result.append(blitz)    # index 3
 
     # run or pass?
-    ot = ""
-    rd = ""
-    if "takes the handoff and rushes" in t or "starts to scramble" in t:
+    if "takes the handoff and rushes" in t or "starts to scramble" or "takes a knee" in t:
         # rushing play
         ot = "Rn"
         if "rushes wide." in t:
@@ -370,17 +405,9 @@ def parse_pbp(p):
             rd = "In"
         if "scramble" in t:
             rd = "Scr"
+        if "takes a knee" in t:
+            rd = "Knee"
 
-    pressure = ""
-    pd = ""
-    pass_result = ""
-    pass_detail = ""
-    turnover = ""
-    sack = ""
-    opm = ""
-    dpm = ""
-    cvrg = ""
-    cvr = ""
     if "drops back to pass." in t:
         # passing play
         ot = "Ps"
@@ -486,6 +513,7 @@ def parse_pbp(p):
             pass_result = "I"
             pass_detail = "Int"
             turnover = "Int"
+        
         # captures info about completed pass
         if "makes the catch." in t or "makes the diving catch" in t or "pulls in the catch." in t or "pull in the catch." in t:
             pass_result = "C"
@@ -501,37 +529,31 @@ def parse_pbp(p):
             else:
                 opm = "ERR"
                 dpm = "ERR"
-
-    result.append(ot)           # index 4
-    result.append(rd)           # index 5
-    result.append(pressure)     # index 6
-    result.append(pd)           # index 7
-    result.append(cvrg)         # index 8
-    result.append(cvr)          # index 9
-    result.append(pass_result)  # index 10
-    result.append(pass_detail)  # index 11
-    result.append(sack)         # index 12
-
-    if "PENALTY" in t:
-        penalty = "Y"
-    else:
-        penalty = ""
-    result.append(penalty)      # index 13
+                print(f"Error(6) using regular expression to find OPM and dpm in:\n{t}")
+    
+    if len(t_sentences) > 1 and "PENALTY" in t and "yards, enforced at" in t:
+        # g1 = player name, g2 = type of penalty, g3 = yards
+        penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(\w*\s?\w*),?\s(\-?\d{1,2})", t)
+        penalty = penalty_info.group(2)
+        ypen = penalty_info.group(3)
+    elif len(t_sentences) > 1 and "PENALTY" in t and "yard, enforce at" not in t:
+        penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(.*)\.", t)
+        penalty = penalty_info.group(2)
+        penalty_yards_find = re.search(r"(\d{1,2}) yard Penalty added to the end of the play\.", t)
+        ypen = penalty_yards_find.group(1)
+    
 
     if "FUMBLE" in t:
         turnover = "Fum"
     else:
         turnover = ""
-    result.append(turnover)     # index 14
-
+    
     if "TOUCHDOWN" in t:
         td = "TD"
     else:
         td = ""
-    result.append(td)           # index 15
 
     # Yards Gained
-    yg = 0                      # index 16
     if "PENALTY" not in t:
         if t_sentences[-1] == "No gain on the play.":
             yg = 0
@@ -558,8 +580,7 @@ def parse_pbp(p):
         elif "TOUCHDOWN" in t_sentences[-1]:
             yards_match = re.search(r'(^[\d-]+) yard', t_sentences[-2])
             yg = int(yards_match.group(1))
-    result.append(yg)           # index 17
-
+    
     # OPM - offensive play maker
     for i in t_sentences:
         if (rd == "Out" or rd == "In") and "takes the handoff" in i:
@@ -606,14 +627,34 @@ def parse_pbp(p):
             else:
                 dpm = "ERR"
 
-    result.append(opm)          # index 18
-    result.append(dpm)          # index 19
+    
 
     # modifies play by play to print each sentence out on new line
     tmp_sent = ""
     for sent in t_sentences:
         tmp_sent = tmp_sent + sent + "\n"
-    result.append(tmp_sent)            # index 20
+    
+    result.append(offense)      # index 0
+    result.append(defense)      # index 1
+    result.append(dt)           # index 2
+    result.append(blitz)        # index 3
+    result.append(ot)           # index 4
+    result.append(rd)           # index 5
+    result.append(pressure)     # index 6
+    result.append(pd)           # index 7
+    result.append(cvrg)         # index 8
+    result.append(cvr)          # index 9
+    result.append(pass_result)  # index 10
+    result.append(pass_detail)  # index 11
+    result.append(sack)         # index 12
+    result.append(penalty)      # index 13
+    result.append(turnover)     # index 14
+    result.append(td)           # index 15
+    result.append(yg)           # index 16
+    result.append(opm)          # index 17
+    result.append(dpm)          # index 18
+    result.append(tmp_sent)     # index 19
+    result.append(ypen)         # index 20
 
     return result
 
