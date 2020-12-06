@@ -442,7 +442,7 @@ def parse_pbp(p):
                 pressure = -2
             if "The offensive line gets the first step" in t:
                 pressure = -1
-            if "The defensive line gets a good first step":
+            if "The defensive line gets a good first step" in t:
                 pressure = 1
             if "they are starting to break through." in t \
                 or "The defensive line has broken through" in t \
@@ -551,7 +551,7 @@ def parse_pbp(p):
             if "throws the ball away to avoid the sack" in t:
                 pass_result = "I"
                 pass_detail = "OoB"
-                pressure = 2
+                pressure = 3
             if "drops the pass." in t:
                 pass_result = "I"
                 pass_detail = "Drp"
