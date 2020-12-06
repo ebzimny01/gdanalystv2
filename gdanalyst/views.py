@@ -361,7 +361,12 @@ def jobstatus(request, jobid):
 
 def display_game_results(request, jobid):
     conn = django_rq.get_connection('default')
-    job = Job.fetch(jobid, connection=conn)
+    try:
+        job = Job.fetch(jobid, connection=conn)
+    except Exception as e:
+        return HttpResponse(f"{e}<br><br>Game Results are cached for 10 minutes. \
+                            Either the game results have expired or there is a \
+                            problem with the requested job.")
     if job.result == 1:
         # This implies error with gameid
         return HttpResponse(f"Error: Invalid GameID = {job.args}")
