@@ -285,10 +285,13 @@ def pbp(request):
     gid_result = get_pbp.delay([gid])
     # Use without delay to bypass rqworker queue - used for debugging
     # gid_result = get_pbp([gid])
-    base_url = reverse("loading_game_results")
-    query_string = urlencode({'jobid': gid_result.id})
-    url = "{}?{}".format(base_url, query_string)
-    return redirect(url)
+    if gid_result == 1:
+        return 1
+    else:
+        base_url = reverse("loading_game_results")
+        query_string = urlencode({'jobid': gid_result.id})
+        url = "{}?{}".format(base_url, query_string)
+        return redirect(url)
 
 def teamschedule(request, wisid):
     wid = School.objects.get(wis_id=wisid)
@@ -346,8 +349,12 @@ def jobstatus(request, jobid):
 def display_game_results(request, jobid):
     conn = django_rq.get_connection('default')
     job = Job.fetch(jobid, connection=conn)
-    return render(request, "gdanalyst/gameresult.html", {
-        "result": job.result
+    if job.result == 1:
+        # This implies error with gameid
+        return HttpResponse(f"Error: Invalid GameID = {job.args}")
+    else:
+        return render(request, "gdanalyst/gameresult.html", {
+            "result": job.result
     })
 
 def get_schedule_table(wisid):
