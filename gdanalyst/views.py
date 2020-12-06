@@ -7,6 +7,7 @@ from rq.job import Job
 from django_redis import get_redis_connection
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_GET
 from bs4 import BeautifulSoup
 from django import forms
 from math import radians, cos, sin, asin, sqrt 
@@ -23,6 +24,18 @@ def index(request):
     return render(request, "gdanalyst/index.html", {
             "form": selectschool
         })
+
+
+@require_GET
+def robots_txt(request):
+    lines = [
+        "User-Agent: *",
+        "Disallow: /world/*/*/player",
+        "Disallow: /world/*/*/town",
+        "Disallow: /schools"
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
 
 def schools(request):
     w = request.GET['Worlds']
