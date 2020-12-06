@@ -281,7 +281,10 @@ def gameid(request):
 
 def pbp(request):
     gid = request.GET['gameid']
+    # Use with delay to use rqworker queue (production)
     gid_result = get_pbp.delay([gid])
+    # Use without delay to bypass rqworker queue - used for debugging
+    # gid_result = get_pbp([gid])
     base_url = reverse("loading_game_results")
     query_string = urlencode({'jobid': gid_result.id})
     url = "{}?{}".format(base_url, query_string)
@@ -306,13 +309,19 @@ def get_all_results(request, wisid):
         for each in schedule_table:
             if each[6] != "#":
                 tmp.append(each[6]) 
+        # Use with delay to use rqworker queue (production)
         results_job =  get_pbp.delay(tmp)
+        # Use without delay to bypass rqworker queue - used for debugging
+        # results_job =  get_pbp(tmp)
     elif "humans" in request.path:
         tmp = []
         for each in schedule_table:
             if each[4] != "Sim AI" and each[6] != "#":
                 tmp.append(each[6]) 
+        # Use with delay to use rqworker queue (production)
         results_job =  get_pbp.delay(tmp)
+        # Use without delay to bypass rqworker queue - used for debugging
+        # results_job =  get_pbp(tmp)
     base_url = reverse("loading_game_results")
     query_string = urlencode({'jobid': results_job.id})
     url = "{}?{}".format(base_url, query_string)

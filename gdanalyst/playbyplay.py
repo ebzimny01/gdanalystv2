@@ -323,7 +323,8 @@ def parse_pbp(p):
     t = p.find(class_='pbpDescription').text
     # splits out text into list of sentences
     t_sentences = tokenize.sent_tokenize(t)
-    
+    t_sentences_length = len(t_sentences)
+
     # Column variables
     dt = ""             # defensive type
     blitz = ""          # if def blitzes this stores position that is blitzing
@@ -345,14 +346,25 @@ def parse_pbp(p):
     ypen = 0             # Penalty yards on play
 
     # If sentence count = 1 then result of play is either a presnap PENALTY, spike the ball, or takes a knee
-    if len(t_sentences) == 1:
+    if t_sentences_length == 1:
         only_sent_text = t_sentences[0]
+        
+        """
+        Known pre-snap penalty names:
+            Defensive Offsides	        (pre-snap)
+            Delay of Game	            (pre-snap)
+            Encroachment	            (pre-snap)
+            False Start	                (pre-snap)
+            Illegal Motion	            (pre-snap)
+            IllegalFormation	        (pre-snap)
+        """
         if "PENALTY" in only_sent_text:
             # g1 = PENALTY, g2 = player name, g3 = type of penalty, g4 = yards
-            penalty_info = re.search(r"^(\s?PENALTY).*\(([a-zA-z' ]*)\), (\w*\s?\w*), (\-?\d{1,2})", only_sent_text)
+            penalty_info = re.search(r"^(\s?PENALTY).*\(([a-zA-z' ]*)\), (\w*\s?\w*\s?\w*), (\-?\d{1,2})", only_sent_text)
             penalty = penalty_info.group(3)
             ypen = penalty_info.group(4)
             yg = ""
+            ot = ""
         elif "spikes the ball" in only_sent_text:
             ot = "Ps"
             pass_result = "I"
@@ -367,22 +379,21 @@ def parse_pbp(p):
             opm_find = re.search(r"([a-zA-z'\- ]*) takes a knee", only_sent_text)
             opm = opm_find.group(1)
             opm = find_off(opm, off_players)
-
-    dt_dict = {
-        # first sentence is always focused on defensive play type if sentence count > 1
-        "Defense lines up for a run.": "Rn",
-        "Defense lines up for a pass with a cover Short.": "PsS",
-        "Defense lines up for a pass with a cover Medium.": "PsM",
-        "Defense lines up for a pass with a cover Long.": "PsL"
-    }
-    
-    # sets defensive tendancy run or pass short, medium, long
-    if t_sentences[0] in dt_dict:
-        dt = dt_dict[t_sentences[0]]
-    
-    
-    # if defense blitzes this will be second sentence
-    if len(t_sentences) > 1:
+    else:
+        dt_dict = {
+            # first sentence is always focused on defensive play type if sentence count > 1
+            "Defense lines up for a run.": "Rn",
+            "Defense lines up for a pass with a cover Short.": "PsS",
+            "Defense lines up for a pass with a cover Medium.": "PsM",
+            "Defense lines up for a pass with a cover Long.": "PsL"
+        }
+        
+        # sets defensive tendancy run or pass short, medium, long
+        if t_sentences[0] in dt_dict:
+            dt = dt_dict[t_sentences[0]]
+        
+        
+        # if defense blitzes this will be second sentence
         if "Blitz" in t_sentences[1]:
             # this grabs the player's name who is blitzing
             blitz_by = re.search(r"Blitz by ([\w'-]+)\.", t_sentences[1])
@@ -394,242 +405,298 @@ def parse_pbp(p):
             else:
                 blitz = "ERR"
                 print(f"Error(7) using regular expression to find blitzing player in:\n{t}")
-    else:
-        blitz = ""
 
-    # run or pass?
-    if "takes the handoff and rushes" in t or "starts to scramble" or "takes a knee" in t:
-        # rushing play
-        ot = "Rn"
-        if "rushes wide." in t:
-            rd = "Out"
-        if "rushes inside." in t:
-            rd = "In"
-        if "scramble" in t:
-            rd = "Scr"
-        if "takes a knee" in t:
-            rd = "Knee"
+        # run or pass?
+        if "takes the handoff and rushes" in t or "starts to scramble" or "takes a knee" in t:
+            # rushing play
+            ot = "Rn"
+            if "rushes wide." in t:
+                rd = "Out"
+            if "rushes inside." in t:
+                rd = "In"
+            if "scramble" in t:
+                rd = "Scr"
+            if "takes a knee" in t:
+                rd = "Knee"
+            # Fumbles appear to only happen on running plays
+            if "fumbles the ball" in t and not re.search(r" fumbles the ball but it is recovered by .* to maintain possession", t):
+                turnover = "Fum"
+                dpm_find = re.search(r"([\w'-]+) makes the pick up", t)
+                dpm_find2 = re.search(r"It's recovered by ([\w'-]+)", t)
+                if dpm_find is not None:
+                    dpm = dpm_find.group(1)
+                    dpm = find_def(dpm, def_players)
+                elif dpm_find2 is not None:
+                    dpm = dpm_find2.group(1)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    dpm = "ERR"
 
-    if "drops back to pass." in t:
-        # passing play
-        ot = "Ps"
+        if "drops back to pass." in t or "lines up in shotgun and takes the snap" in t:
+            # passing play
+            ot = "Ps"
+            
+
+            # determines defensive line pressure on pass plays
+            if "The offensive line is providing great time for" in t:
+                pressure = -2
+            if "The offensive line gets the first step" in t:
+                pressure = -1
+            if "The defensive line gets a good first step":
+                pressure = 1
+            if "they are starting to break through." in t \
+                or "The defensive line has broken through" in t \
+                or "The defensive line has somehow broken through" in t:
+                    pressure = 2
+            if "The defensive line has somehow broken through to get great pressure on" in t:
+                pressure = 3
         
 
-        # determines defensive line pressure on pass plays
-        if "The defensive line has broken through" in t:
-            pressure = 2
-        if "The defensive line has somehow broken through" in t:
-            pressure = 2
-        if "they are starting to break through." in t:
-            pressure = 1
-       
-
-        # for pass plays determines attempted pass depth
-        if re.search(r"throws to .* behind the line of scrimmage \(very short\).", t):
-            pd = "VS"
-        if re.search(r"throws to .* \(Short\)", t):
-            pd = "S"
-        if re.search(r"throws to .* \(Medium\)", t):
-            pd = "M"
-        if re.search(r"throws to .* \(Long\)", t):
-            pd = "L"
-        if re.search(r"throws to .* \(Deep\)", t):
-            pd = "D"
-        
-        # to determine coverage and player in coverage
-        if "throws to a covered" in t:
-            coverage_find = re.search(r" throws to a covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
-            if coverage_find is not None:
-                opm = coverage_find.group(1)
-                opm = find_off(opm, off_players)
-                cvrg = coverage_find.group(2)
-                cvrg = find_def(cvrg, def_players)
-                cvr = "C"
-            else:
-                opm = "ERROR"
-                cvrg = "ERROR"
-                cvr = "ERR"
-                print(f"ERROR(2) using regular expression to find OPM and CVRG in:\n{t}\n")
-        elif "throws to a well-covered" in t:
-            coverage_find = re.search(r" throws to a well-covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
-            if coverage_find is not None:
-                opm = coverage_find.group(1)
-                opm = find_off(opm, off_players)
-                cvrg = coverage_find.group(2)
-                cvrg = find_def(cvrg, def_players)
-                cvr = "WC"
-            else:
-                opm = "ERR"
-                cvrg = "ERR"
-                cvr = "ERR"
-                print(f"Error(3) using regular expression to find OPM and CVRG in:\n{t}")
-        elif "throws to the wide open" in t:
-            coverage_find = re.search(r" throws to the wide open ([\w'-]+) at the ", t)
-            if coverage_find is not None:
-                opm = coverage_find.group(1)
-                opm = find_off(opm, off_players)
-                cvrg = ""
-                cvr = "WO"
-            else:
-                opm = "ERR"
-                cvrg = "ERR"
-                cvr = "ERR"
-                print(f"Error(4) using regular expression to find OPM and CVRG in:\n{t}")
-        elif "throws to " in t:
-            coverage_find = re.search(r" throws to ([\w'-]+?) \(([\w'-]+,?[\w'-]*)\)", t)
-            if coverage_find is not None:
-                opm = coverage_find.group(1)
-                opm = find_off(opm, off_players)
-                cvrg = coverage_find.group(2)
-                cvrg = find_def(cvrg, def_players)
-            else:
-                opm = "ERR"
-                cvrg = "ERR"
-                cvr = "ERR"
-                print(f"Error(5) using regular expression to find OPM and CVRG in:\n{t}")
-
-        # capture info about incomplete pass
-        if "Pass is overthrown." in t:
-            pass_result = "I"
-            pass_detail = "Ovr"
-        if "Pass is thrown behind" in t:
-            pass_result = "I"
-            pass_detail = "Bhd"
-        if "Pass is knocked down" in t:
-            pass_result = "I"
-            pass_detail = "KnD"
-            dpm_find = re.search(r"Pass is knocked down by ([\w'-]+)\.", t)
-            if dpm_find is not None:
-                dpm = dpm_find.group(1)
-                dpm = find_def(dpm, def_players)
-            else:
-                dpm = "ERR"
-        if "throws the ball away to avoid the sack" in t:
-            pass_result = "I"
-            pass_detail = "OoB"
-            pressure = 2
-        if "drops the pass." in t:
-            pass_result = "I"
-            pass_detail = "Drp"
-        if "INTERCEPTED by" in t:
-            pass_result = "I"
-            pass_detail = "Int"
-            turnover = "Int"
-        
-        # captures info about completed pass
-        if "makes the catch." in t or "makes the diving catch" in t or "pulls in the catch." in t or "pull in the catch." in t:
-            pass_result = "C"
-        # 
-        if "is sacked by " in t:
-            sack = "Y"
-            sacked_find_opm_dpm = re.search(r". ([\w'-]+) is sacked by ([\w'-]+) for a loss", t)
-            if sacked_find_opm_dpm is not None:
-                opm = sacked_find_opm_dpm.group(1)
-                opm = find_off(opm, off_players)
-                dpm = sacked_find_opm_dpm.group(2)
-                dpm = find_def(dpm, def_players)
-            else:
-                opm = "ERR"
-                dpm = "ERR"
-                print(f"Error(6) using regular expression to find OPM and dpm in:\n{t}")
-    
-    if len(t_sentences) > 1 and "PENALTY" in t and "yards, enforced at" in t:
-        # g1 = player name, g2 = type of penalty, g3 = yards
-        penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(\w*\s?\w*\s?\w*),?\s(\-?\d{1,2})", t)
-        penalty = penalty_info.group(2)
-        ypen = penalty_info.group(3)
-    elif len(t_sentences) > 1 and "PENALTY" in t and "yard Penalty added to the end of the play" in t:
-        # g1 = player name, g2 = type of penalty, g3 = yards
-        penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(.*)\.\s(\d{1,2}) yard Penalty added to the end of the play\.", t)
-        penalty = penalty_info.group(2)
-        ypen = penalty_info.group(3)
-    
-
-    if "FUMBLE" in t:
-        turnover = "Fum"
-    else:
-        turnover = ""
-    
-    if "TOUCHDOWN" in t:
-        td = "TD"
-    else:
-        td = ""
-
-    # Yards Gained
-    if "PENALTY" not in t:
-        if t_sentences[-1] == "No gain on the play.":
-            yg = 0
-            dpm_find = re.search(r"is stopped by ([\w'-]+) at the line of scrimmage", t)
-            if dpm_find is not None:
-                dpm = dpm_find.group(1)
-                dpm = find_def(dpm, def_players)
-            else:
-                dpm = "ERR"
-        elif "for a loss of " in t_sentences[-1]:
-            # need to grab the negative yards
-            yards_match = re.search(r"for a loss of -([\d]+) yard", t_sentences[-1])
-            yg = -int(yards_match.group(1))
-            dpm_find = re.search(r"is .*? by ([\w'-]+) for a loss", t)
-            if dpm_find is not None:
-                dpm = dpm_find.group(1)
-                dpm = find_def(dpm, def_players)
-            else:
-                dpm = "ERR"
-        elif "yards on the play" in t_sentences[-1] or "yard gain" in t_sentences[-1] or "yards gain" in t_sentences[-1]:
-            # need to grab the positive yards
-            yards_match = re.search(r'(^[\d-]+) yard', t_sentences[-1])
-            yg = int(yards_match.group(1))
-        elif "TOUCHDOWN" in t_sentences[-1]:
-            yards_match = re.search(r'(^[\d-]+) yard', t_sentences[-2])
-            yg = int(yards_match.group(1))
-    
-    # OPM - offensive play maker
-    for i in t_sentences:
-        if (rd == "Out" or rd == "In") and "takes the handoff" in i:
-            opm_find = re.search(r"(^[\w'-]+ [\w'-]+) takes the handoff", i)
-            if opm_find is not None:
-                opm = opm_find.group(1)
-                opm = find_off(opm, off_players)
-            else:
-                opm = "ERR"
-        if rd == "Scr" and "starts to scramble" in i:
-            opm_find = re.search(r"(^[\w'-]+) starts to scramble", i)
-            if opm_find is not None:
-                opm = opm_find.group(1)
-                opm = find_off(opm, off_players)
-            else:
-                opm = "ERR"
-        if ot == "Ps" and pass_result == "C":
-            for i in t_sentences:
-                if "catch" in i:
-                    opm = i.split()[0]
+            # for pass plays determines attempted pass depth
+            if re.search(r"throws to .* behind the line of scrimmage \(very short\).", t):
+                pd = "VS"
+            if re.search(r"throws to .* \(Short\)", t):
+                pd = "S"
+            if re.search(r"throws to .* \(Medium\)", t):
+                pd = "M"
+            if re.search(r"throws to .* \(Long\)", t):
+                pd = "L"
+            if re.search(r"throws to .* \(Deep\)", t):
+                pd = "D"
+            
+            # to determine coverage and player in coverage
+            if "throws to a covered" in t:
+                coverage_find = re.search(r" throws to a covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
+                if coverage_find is not None:
+                    opm = coverage_find.group(1)
                     opm = find_off(opm, off_players)
+                    cvrg = coverage_find.group(2)
+                    cvrg = find_def(cvrg, def_players)
+                    cvr = "C"
+                else:
+                    opm = "ERROR"
+                    cvrg = "ERROR"
+                    cvr = "ERR"
+                    print(f"ERROR(2) using regular expression to find OPM and CVRG in:\n{t}\n")
+            elif "throws to a well-covered" in t:
+                coverage_find = re.search(r" throws to a well-covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
+                if coverage_find is not None:
+                    opm = coverage_find.group(1)
+                    opm = find_off(opm, off_players)
+                    cvrg = coverage_find.group(2)
+                    cvrg = find_def(cvrg, def_players)
+                    cvr = "WC"
+                else:
+                    opm = "ERR"
+                    cvrg = "ERR"
+                    cvr = "ERR"
+                    print(f"Error(3) using regular expression to find OPM and CVRG in:\n{t}")
+            elif "throws to the wide open" in t:
+                coverage_find = re.search(r" throws to the wide open ([\w'-]+) at the ", t)
+                if coverage_find is not None:
+                    opm = coverage_find.group(1)
+                    opm = find_off(opm, off_players)
+                    cvrg = ""
+                    cvr = "WO"
+                else:
+                    opm = "ERR"
+                    cvrg = "ERR"
+                    cvr = "ERR"
+                    print(f"Error(4) using regular expression to find OPM and CVRG in:\n{t}")
+            elif re.search(r"throws to .* behind the line of scrimmage", t):
+                coverage_find = re.search(r"throws to ([\w'-]+?) behind the line of scrimmage \(very short\).", t)
+                coverage_find2 = re.search(r"throws to ([\w'-]+?) \(([\w'-]+,?[\w'-]*)\) behind the line of scrimmage \(very short\).", t)
+                if coverage_find is not None:
+                    opm = coverage_find.group(1)
+                    opm = find_off(opm, off_players)
+                elif coverage_find2 is not None:
+                    opm = coverage_find2.group(1)
+                    opm = find_off(opm, off_players)
+                    cvrg = coverage_find2.group(2)
+                    cvrg = find_def(cvrg, def_players)
+                else:
+                    opm = "ERR"
+                    cvrg = "ERR"
+                    cvr = "ERR"
+                    print(f"Error(5.1) using regular expression to find OPM and CVRG in:\n{t}")
+            elif "throws to " in t:
+                coverage_find = re.search(r" throws to ([\w'-]+?) \(([\w'-]+,?[\w'-]*)\)", t)
+                if coverage_find is not None:
+                    opm = coverage_find.group(1)
+                    opm = find_off(opm, off_players)
+                    cvrg = coverage_find.group(2)
+                    cvrg = find_def(cvrg, def_players)
+                else:
+                    opm = "ERR"
+                    cvrg = "ERR"
+                    cvr = "ERR"
+                    print(f"Error(5.2) using regular expression to find OPM and CVRG in:\n{t}")
 
-    # DPM - defensive play maker
-    for i in t_sentences:
-        if "is tackled by" in i:
-            dpm_find = re.search(r" is tackled by ([\w'-]+) at the", i)
-            if dpm_find is not None:
-                dpm = dpm_find.group(1)
-                dpm = find_def(dpm, def_players)
-            else:
-                dpm = "ERR"
-        if "gets a hand on" in i:
-            dpm_find = re.search(r"^([\w'-]+) gets a hand on ", i)
-            if dpm_find is not None:
-                dpm = dpm_find.group(1)
-                dpm = find_def(dpm, def_players)
-            else:
-                dpm = "ERR"
-        if "is brought down by" in i:
-            dpm_find = re.search(r" is brought down by ([\w'-]+) ", i)
-            if dpm_find is not None:
-                dpm = dpm_find.group(1)
-                dpm = find_def(dpm, def_players)
-            else:
-                dpm = "ERR"
+            # capture info about incomplete pass
+            if "Pass is overthrown." in t:
+                pass_result = "I"
+                pass_detail = "Ovr"
+            if "Pass is thrown behind" in t:
+                pass_result = "I"
+                pass_detail = "Bhd"
+            if "Pass is knocked down" in t:
+                pass_result = "I"
+                pass_detail = "KnD"
+                dpm_find = re.search(r"Pass is knocked down by ([\w'-]+)\.", t)
+                if dpm_find is not None:
+                    dpm = dpm_find.group(1)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    dpm = "ERR"
+            if "throws the ball away to avoid the sack" in t:
+                pass_result = "I"
+                pass_detail = "OoB"
+                pressure = 2
+            if "drops the pass." in t:
+                pass_result = "I"
+                pass_detail = "Drp"
+            if "intercepts the ball" in t:
+                pass_result = "I"
+                pass_detail = "Int"
+                turnover = "Int"
+                dpm_find = re.search(r"([\w'-]+) intercepts the ball", t)
+                if dpm_find is not None:
+                    dpm = dpm_find.group(1)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    dpm = "ERR"
+            # captures info about completed pass
+            if "makes the catch." in t or "makes the diving catch" in t or "pulls in the catch." in t or "pull in the catch." in t:
+                pass_result = "C"
+            # 
+            if "is sacked by " in t:
+                sack = "Y"
+                pressure = 4
+                # regex g1 = last of sacked QB, g2 = last name of def player made sack, g3 = yards lost on sack
+                sacked_find_opm_dpm = re.search(r"n?([\w'-]+) is sacked by ([\w'-]+) for a loss of (-?\d{1,2}) yards", t)
+                if sacked_find_opm_dpm is not None:
+                    opm = sacked_find_opm_dpm.group(1)
+                    opm = find_off(opm, off_players)
+                    dpm = sacked_find_opm_dpm.group(2)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    opm = "ERR"
+                    dpm = "ERR"
+                    print(f"Error(6) using regular expression to find OPM and dpm in:\n{t}")
+        
+        if "TOUCHDOWN" in t:
+            td = "TD"
 
-    
+        if "SAFETY" in t:
+            td = "SFTY"
+
+        # Yards Gained
+        # Removing this PENALTY if statement to attempt to rely on Penalty logic added further down below
+        # if "PENALTY" not in t:
+        for i in t_sentences:
+            if "No gain on the play." in i:
+                yg = 0
+                dpm_find = re.search(r"is stopped by ([\w'-]+) at the line of scrimmage", i)
+                if dpm_find is not None:
+                    dpm = dpm_find.group(1)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    dpm = "ERR"
+            elif "for a loss of " in i:
+                # need to grab the negative yards
+                yards_match = re.search(r"for a loss of -([\d]+) yard", i)
+                yg = -int(yards_match.group(1))
+                dpm_find = re.search(r"is .*? by ([\w'-]+) for a loss", i)
+                if dpm_find is not None:
+                    dpm = dpm_find.group(1)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    dpm = "ERR"
+            elif "yards on the play." in i or "yard gain." in i or "yards gain." in i:
+                # need to grab the positive yards
+                yards_match = re.search(r'(^[\d-]+) yard', i)
+                yg = int(yards_match.group(1))
+        
+        """
+        Known post-snap penalty names:
+            Defensive Holding	
+            Defensive Pass Interference	
+            DefensivePersonalFoul	
+            Facemask
+            Intentional Grounding	
+            Offensive Holding	
+            Offensive Pass Interference	
+            OffensivePersonalFoul	
+            Roughing The Passer	
+        """
+
+        if "PENALTY" in t and "yards, enforced at" in t and "yard Penalty added to the end of the play" not in t:
+            # g1 = player name, g2 = type of penalty, g3 = yards
+            penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(\w*\s?\w*\s?\w*),?\s(\-?\d{1,2})", t)
+            penalty = penalty_info.group(2)
+            ypen = penalty_info.group(3)
+            # Treating these penalties as if the play didn't happen.
+            # Any offensive yards gained are removed and pass_result removed.
+            # Leaving other variables untouched.
+            if penalty == "Defensive Holding" or penalty == "Defensive Pass Interference" \
+                or penalty == "Offensive Holding" or penalty == "Offensive Pass Interference" \
+                or penalty == "OffensivePersonalFoul":
+                    pass_result = ""
+                    yg = ""
+        elif "PENALTY" in t and "yard Penalty added to the end of the play" in t:
+            # g1 = player name, g2 = type of penalty, g3 = yards
+            penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(.*)\.\s(\d{1,2}) yard Penalty added to the end of the play\.", t)
+            penalty = penalty_info.group(2)
+            ypen = penalty_info.group(3)
+            turnover = ""
+            if yg < 0:
+                yg = ""
+
+        # OPM - offensive play maker
+        for i in t_sentences:
+            if (rd == "Out" or rd == "In") and "takes the handoff" in i:
+                opm_find = re.search(r"(^[\w'-]+ [\w'-]+) takes the handoff", i)
+                if opm_find is not None:
+                    opm = opm_find.group(1)
+                    opm = find_off(opm, off_players)
+                else:
+                    opm = "ERR"
+            if rd == "Scr" and "starts to scramble" in i:
+                opm_find = re.search(r"(^[\w'-]+) starts to scramble", i)
+                if opm_find is not None:
+                    opm = opm_find.group(1)
+                    opm = find_off(opm, off_players)
+                else:
+                    opm = "ERR"
+            if ot == "Ps" and pass_result == "C":
+                for i in t_sentences:
+                    if "catch" in i:
+                        opm = i.split()[0]
+                        opm = find_off(opm, off_players)
+
+        # DPM - defensive play maker
+        for i in t_sentences:
+            if "is tackled by" in i:
+                dpm_find = re.search(r" is tackled by ([\w'-]+) at the", i)
+                if dpm_find is not None:
+                    dpm = dpm_find.group(1)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    dpm = "ERR"
+            if "gets a hand on" in i:
+                dpm_find = re.search(r"^([\w'-]+) gets a hand on ", i)
+                if dpm_find is not None:
+                    dpm = dpm_find.group(1)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    dpm = "ERR"
+            if "is brought down by" in i:
+                dpm_find = re.search(r" is brought down by ([\w'-]+) ", i)
+                if dpm_find is not None:
+                    dpm = dpm_find.group(1)
+                    dpm = find_def(dpm, def_players)
+                else:
+                    dpm = "ERR"
 
     # modifies play by play to print each sentence out on new line
     tmp_sent = ""
@@ -667,7 +734,18 @@ def find_off(o, off_dict):
     return o
 
 def find_def(d, def_dict):
-    for pos, name in def_dict.items():
-        if name == d or name.split()[1] == d:
-            d = pos
+    if "," in d:
+        # This means two defensive players were covering offensive player
+        # Need to split up, match each position and return back
+        tmp = d.split(",")
+        for pos, name in def_dict.items():
+            if name == tmp[0] or name.split()[1] == tmp[0]:
+                d = pos
+        for pos, name in def_dict.items():
+            if name == tmp[1] or name.split()[1] == tmp[1]:
+                d += "," + pos
+    else:
+        for pos, name in def_dict.items():
+            if name == d or name.split()[1] == d:
+                d = pos
     return d
