@@ -35,7 +35,7 @@ $(document).ready( function () {
     $('#gameresult').DataTable( {
         fixedHeader: true,
         paging: true,
-        "pageLength": 50,
+        // "pageLength": 50,
         orderMulti: true,
         order: [[ 2, 'asc' ], [ 3, 'desc' ]],
         responsive: true,
@@ -44,7 +44,12 @@ $(document).ready( function () {
             order: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 27, 24, 25, 26, 28, 29 ]
         },
         dom: 'PBfrtip',
+        lengthMenu: [
+            [ 50, 100, -1 ],
+            [ '50 rows', '100 rows', 'Show all' ]
+        ],
         buttons: [
+            'pageLength',
             {
                 extend: 'colvis',
                 collectionLayout: 'fixed two-column',
@@ -55,6 +60,7 @@ $(document).ready( function () {
             'csv', 'excel',
         ],
         searchPanes:{
+            columns:[0, 1, 2, 5, 6, 7, 8, 9, 11],
             cascadePanes: true,
             layout: 'columns-9',
         },

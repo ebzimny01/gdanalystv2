@@ -342,8 +342,8 @@ def parse_pbp(p):
     cvr = ""            # how well is the offensive player covered
     penalty = ""        # Was a penalty committed on the play
     td = ""             # Was there a Touchdown scored on the play
-    yg = 0             # Yards gained on play
-    ypen = 0             # Penalty yards on play
+    yg = 0              # Yards gained on play
+    ypen = ""           # Penalty yards on play
 
     # If sentence count = 1 then result of play is either a presnap PENALTY, spike the ball, or takes a knee
     if t_sentences_length == 1:
