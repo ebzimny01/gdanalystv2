@@ -52,21 +52,20 @@ function school_main() {
 function markschools() {
     school_list = document.querySelectorAll('.hct');
     school_list.forEach(element => {
-        fetch(`/location/${element.id}`)
-            .then(response => response.json())
-            .then(loc => {
-            console.log(loc);
-            var marker_school = L.marker([loc[0], loc[1]], {
-                title: loc[2],
-                icon: personIcon
-            }).addTo(mymap);
-            marker_school.bindPopup(`<a href="\\${element.id}">${loc[2]}</a> (${loc[3]})`);
+        sch_short = element.getElementsByClassName('sch_short')[0].innerText;
+        sch_coach = element.getElementsByClassName('sch_coach')[0].innerText;        
+        sch_lat = element.getElementsByClassName('hct_lat')[0].innerHTML;
+        sch_lon = element.getElementsByClassName('hct_lon')[0].innerHTML;
+        var marker_school = L.marker([sch_lat, sch_lon], {
+            title: sch_short,
+            icon: personIcon
+        }).addTo(mymap);
+        marker_school.bindPopup(`<a href="\\${element.id}">${sch_short}</a> (${sch_coach})`);
         });
-    });
 }
 
 function getColor(d) {
-    return d === '180 miles'  ? 'blule' :
+    return d === '180 miles'  ? 'blue' :
            d === '360 miles'  ? 'orange' :
            d === '1400 miles' ? 'red' :
                                 '#FFFFFF';
