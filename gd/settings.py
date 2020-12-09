@@ -21,8 +21,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 sentry_sdk.init(
-    # This is gdanalyst-dev full URL
-    dsn="https://0282a2ff087e48ccbdf9a82abd39c3f7@o483570.ingest.sentry.io/5535558",
     # This is what should be used by Heroku
     dsn=os.environ['SENTRY_DSN'],
     integrations=[DjangoIntegration(), RedisIntegration()],
@@ -47,6 +45,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# This is not a real production secret key.
 SECRET_KEY = 'scljzyo#ikciglh@5_lq%byil@v*8d26m$$x828*!k*e$3z=_$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
