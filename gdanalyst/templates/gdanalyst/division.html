@@ -59,12 +59,12 @@
                         <th>Lon</th>
                     </tr>
                         {% for school in schools %}
-                        <tr>
-                            <td>{{ school.school_short }}</td>
-                            <td><a class="hct" href="/{{ school.wis_id }}">{{ school.wis_id }}</a></td>
-                            <td>{{ school.coach }}</td>
-                            <td>{{ school.location.latitude }}</td>
-                            <td>{{ school.location.longitude }}</td>
+                        <tr class="hct" id="{{ school.wis_id }}">
+                            <td class="sch_short">{{ school.school_short }}</td>
+                            <td><a href="/{{ school.wis_id }}">{{ school.wis_id }}</a></td>
+                            <td class="sch_coach">{{ school.coach }}</td>
+                            <td class="hct_lat">{{ school.location.latitude }}</td>
+                            <td class="hct_lon">{{ school.location.longitude }}</td>
                         </tr>
                         {% endfor %}
                 </table>
