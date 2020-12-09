@@ -35,23 +35,21 @@ function markschools() {
     var markericon;
     school_list = document.querySelectorAll('.hct');
     school_list.forEach(element => {
-        fetch(`/location/${element.innerHTML}`)
-            .then(response => response.json())
-            .then(loc => {
-            console.log(loc);
-            console.log(loc[3]);
-            if (loc[3] === 'Sim AI') {
-                markericon = simIcon;
-            } else {
-                markericon = personIcon;
-            }
-            var marker_school = L.marker([loc[0], loc[1]], {
-                icon: markericon,
-                title: loc[2]
-            }).addTo(mymap);
-            marker_school.bindPopup(`<a href="\\${element.innerHTML}">${loc[2]}</a> (${loc[3]})`);
+        sch_short = element.getElementsByClassName('sch_short')[0].innerText;
+        sch_coach = element.getElementsByClassName('sch_coach')[0].innerText;        
+        sch_lat = element.getElementsByClassName('hct_lat')[0].innerHTML;
+        sch_lon = element.getElementsByClassName('hct_lon')[0].innerHTML;
+        if (sch_coach === 'Sim AI') {
+            markericon = simIcon;
+        } else {
+            markericon = personIcon;
+        }
+        var marker_school = L.marker([sch_lat, sch_lon], {
+            icon: markericon,
+            title: sch_short
+        }).addTo(mymap);
+        marker_school.bindPopup(`<a href="\\${element.id}">${sch_short}</a> (${sch_coach})`);
         });
-    });
 }
 
 markschools();

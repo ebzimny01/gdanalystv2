@@ -84,15 +84,21 @@
                             <th scope="col">School</th>
                             <th scope="col">Coach</th>
                             <th scope="col">Distance (miles)</th>
+                            <th style="visibility: hidden;" scope="col">Latitude</th>
+                            <th style="visibility: hidden;" scope="col">Longitude</th>
                         </tr>
                     </thead>
-                        {% for key, value in combined %}
-                        <tr>
-                            <td><a class="hct" id="{{ key }}" href="/{{ key }}">{{ value.0 }}</a></td>
-                            <td><a href="/coach/{{ value.1 }}">{{ value.1 }}</a></td>
-                            <td id="distanceColumn"> {{ value.2 }}</td>
+                    <tbody>
+                    {% for key, value in combined %}
+                        <tr class="hct" id="{{ key }}">
+                            <td class="sch_short"><a href="/{{ key }}">{{ value.0 }}</a></td>
+                            <td class="sch_coach"><a href="/coach/{{ value.1 }}">{{ value.1 }}</a></td>
+                            <td id="distanceColumn">{{ value.2 }}</td>
+                            <td style="visibility: hidden;" class="hct_lat">{{ value.3 }}</td>
+                            <td style="visibility: hidden;" class="hct_lon">{{ value.4 }}</td>
                         </tr>
-                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
                 </table>
             </div>
             <div class="col-lg-9">

@@ -59,7 +59,7 @@ def wisid(request, wisid):
     teamdistance = get_distance(wid.location, hct)
     combined = {}
     for each in hct:
-        combined[each.wis_id] = [each.school_short, each.coach, teamdistance[each.wis_id]]
+        combined[each.wis_id] = [each.school_short, each.coach, teamdistance[each.wis_id], each.location.latitude, each.location.longitude]
     K = 2
     combined_sorted = sorted(combined.items(), key=lambda x: x[1][K])
     return render(request, "gdanalyst/wisid.html", {
@@ -126,7 +126,7 @@ def player(request, worldname, division):
         else:
             combined = {}
             for each in hct:
-                combined[each.wis_id] = [each.school_short, each.coach, player_school_distance[0][each.wis_id]]
+                combined[each.wis_id] = [each.school_short, each.coach, player_school_distance[0][each.wis_id], each.location.latitude, each.location.longitude]
             K = 2
             combined_sorted = sorted(combined.items(), key=lambda x: x[1][K])
             return render(request, "gdanalyst/player.html", {
@@ -153,7 +153,7 @@ def town(request, worldname, division):
     else:
         combined = {}
         for each in hct:
-            combined[each.wis_id] = [each.school_short, each.coach, town_school_distance[0][each.wis_id]]
+            combined[each.wis_id] = [each.school_short, each.coach, town_school_distance[0][each.wis_id], each.location.latitude, each.location.longitude]
         K = 2
         combined_sorted = sorted(combined.items(), key=lambda x: x[1][K])
         return render(request, "gdanalyst/town.html", {

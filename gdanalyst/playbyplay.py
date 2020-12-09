@@ -363,9 +363,16 @@ def parse_pbp(p):
         """
         if "PENALTY" in only_sent_text:
             # g1 = PENALTY, g2 = player name, g3 = type of penalty, g4 = yards
-            penalty_info = re.search(r"^(\s?PENALTY).*\(([a-zA-z' ]*)\), (\w*\s?\w*\s?\w*), (\-?\d{1,2})", only_sent_text)
-            penalty = penalty_info.group(3)
-            ypen = penalty_info.group(4)
+            # penalty_info = re.search(r"^(\s?PENALTY).*\(([a-zA-z' ]*)\), (\w*\s?\w*\s?\w*), (\-?\d{1,2})", only_sent_text)
+            # This one works when Penalty pbp does not include a player name in parantheses
+            # g1 = type of penalty, g2 = yards
+            penalty2_info = re.search(r"^\s?PENALTY on .*, (\w*\s?\w*\s?\w*), (\-?\d{1,2})", only_sent_text)
+            try:
+                penalty = penalty2_info.group(1)
+            except:
+                penalty = "ERR"
+                print(f"Error(8) grabbing penalty info from pbp text:\n{only_sent_text}")
+            ypen = penalty2_info.group(2)
             yg = ""
             ot = ""
         elif "spikes the ball" in only_sent_text:
