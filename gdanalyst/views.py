@@ -7,6 +7,7 @@ from rq.job import Job
 from django_redis import get_redis_connection
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_GET
 from bs4 import BeautifulSoup
 from django import forms
 from math import radians, cos, sin, asin, sqrt 
@@ -23,6 +24,18 @@ def index(request):
     return render(request, "gdanalyst/index.html", {
             "form": selectschool
         })
+
+
+@require_GET
+def robots_txt(request):
+    lines = [
+        "User-Agent: *",
+        "Disallow: /world/*/*/player",
+        "Disallow: /world/*/*/town",
+        "Disallow: /schools"
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
 
 def schools(request):
     w = request.GET['Worlds']
@@ -285,10 +298,13 @@ def pbp(request):
     gid_result = get_pbp.delay([gid])
     # Use without delay to bypass rqworker queue - used for debugging
     # gid_result = get_pbp([gid])
-    base_url = reverse("loading_game_results")
-    query_string = urlencode({'jobid': gid_result.id})
-    url = "{}?{}".format(base_url, query_string)
-    return redirect(url)
+    if gid_result == 1:
+        return 1
+    else:
+        base_url = reverse("loading_game_results")
+        query_string = urlencode({'jobid': gid_result.id})
+        url = "{}?{}".format(base_url, query_string)
+        return redirect(url)
 
 def teamschedule(request, wisid):
     wid = School.objects.get(wis_id=wisid)
@@ -345,9 +361,18 @@ def jobstatus(request, jobid):
 
 def display_game_results(request, jobid):
     conn = django_rq.get_connection('default')
-    job = Job.fetch(jobid, connection=conn)
-    return render(request, "gdanalyst/gameresult.html", {
-        "result": job.result
+    try:
+        job = Job.fetch(jobid, connection=conn)
+    except Exception as e:
+        return HttpResponse(f"{e}<br><br>Game Results are cached for 10 minutes. \
+                            Either the game results have expired or there is a \
+                            problem with the requested job.")
+    if job.result == 1:
+        # This implies error with gameid
+        return HttpResponse(f"Error: Invalid GameID = {job.args}")
+    else:
+        return render(request, "gdanalyst/gameresult.html", {
+            "result": job.result
     })
 
 def get_schedule_table(wisid):
