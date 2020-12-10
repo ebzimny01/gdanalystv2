@@ -5,3 +5,4 @@ node_modules/*
 .vscode/launch.json
 dump.rdb
 staticfiles/*
+gd/sec.py
