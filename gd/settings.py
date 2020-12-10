@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import django_heroku
 import os
-from .sec import *
+from gd.sec1 import *
 import logging
 from pathlib import Path
 import sentry_sdk
