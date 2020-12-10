@@ -30,9 +30,12 @@ def index(request):
 def robots_txt(request):
     lines = [
         "User-Agent: *",
+        "Disallow: /*",
         "Disallow: /world/*/*/player",
         "Disallow: /world/*/*/town",
-        "Disallow: /schools"
+        "Disallow: /schools",
+        "Disallow: /pbp*",
+        "Disallow: /loadinggameresults*"
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
