@@ -4,4 +4,8 @@ db.sqlite3
 node_modules/*
 .vscode/launch.json
 dump.rdb
-staticfiles/*
+staticfiles/*.json
+staticfiles/admin/*
+staticfiles/gdanalyst/*
+staticfiles/*.py
+gd/sec.py

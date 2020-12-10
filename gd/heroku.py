@@ -7,7 +7,7 @@ import os
 from urllib.parse import urlparse
 
 # If using in your own project, update the project namespace below
-from gd.settings import *
+from .settings import *
 
 # Sentry integration
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -32,6 +32,10 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
 )
+
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # False if not in os.environ
 DEBUG = env('DEBUG')

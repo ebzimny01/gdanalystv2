@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import django_heroku
 import os
+from gd.sec1 import *
 import logging
 from pathlib import Path
 import sentry_sdk
@@ -43,10 +44,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# This is not a real production secret key.
-SECRET_KEY = 'scljzyo#ikciglh@5_lq%byil@v*8d26m$$x828*!k*e$3z=_$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -190,19 +187,6 @@ DATABASES = {
     }
 }
 '''
-
-#Postgresql
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'gdapp',
-        'USER': 'gdapp',
-        'PASSWORD': 'Idid#mdJ3x53NKzo9b1ebDAKP4an*Q',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
