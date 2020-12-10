@@ -33,6 +33,10 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 # False if not in os.environ
 DEBUG = env('DEBUG')
 
