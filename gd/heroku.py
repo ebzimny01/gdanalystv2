@@ -7,7 +7,7 @@ import os
 from urllib.parse import urlparse
 
 # If using in your own project, update the project namespace below
-from gd.settings import *
+from .settings import *
 
 # Sentry integration
 from sentry_sdk.integrations.django import DjangoIntegration
