@@ -9,3 +9,4 @@ staticfiles/admin/*
 staticfiles/gdanalyst/*
 staticfiles/*.py
 gd/sec.py
+gd/sec1.py
