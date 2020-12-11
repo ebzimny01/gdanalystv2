@@ -1,4 +1,4 @@
-# gdanalystv2
+# GDAnalyst
 This is the code repository for an application aimed at providing data to players of Gridiron Dynasty by WhatIfSports (WIS).
 
 The app leverages, Django+Python for MVC, PostgreSQL for DB, Django-RQ for worker queue and Redis for job cache.
