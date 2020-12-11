@@ -11,4 +11,4 @@ The front end UI leverages some JS libraries:
 
 
 ## License
-This project is licensed under the terms of the https://github.com/ebzimny01/gdanalystv2/blob/master/LICENSE
+This project is licensed under the terms of the [GPL-3.0 License](https://github.com/ebzimny01/gdanalystv2/blob/master/LICENSE) 
