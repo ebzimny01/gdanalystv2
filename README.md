@@ -8,3 +8,7 @@ The front end UI leverages some JS libraries:
 - DataTables
 - Bootstrap
 - Leaflet and Mapbox (for mapping locations)
+
+
+## License
+This project is licensed under the terms of the https://github.com/ebzimny01/gdanalystv2/blob/master/LICENSE
