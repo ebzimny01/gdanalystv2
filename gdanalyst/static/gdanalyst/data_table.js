@@ -27,6 +27,8 @@ var th_dict = {
     "DPM": "DPM = Defensive Play Maker",
     "PBP": "PBP = Play by Play Text",
     "YPEN": "YPEN = Penalty Yards",
+    "Prg": "Prg = QB Progression",
+    "Prgx": "Prgx = Prg Details",
     "H": "H = Home Score",
     "A": "A = Away Score",
 };
@@ -41,7 +43,7 @@ $(document).ready( function () {
         responsive: true,
         stateSave: false,
         colReorder: {
-            order: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 27, 24, 25, 26, 28, 29 ]
+            order: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 28, 29, 17, 18, 19, 20, 21, 22, 23, 27, 24, 25, 26, 30, 31 ]
         },
         dom: 'PBfrtip',
         lengthMenu: [
@@ -75,10 +77,10 @@ $(document).ready( function () {
                 searchPanes:{
                     show: false,
                 },
-                targets: [3, 4, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+                targets: [3, 4, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
             },
             {
-                "visible": false, "targets": 26,
+                "visible": false, "targets": [26, 29]
             },
             {
                 "width": "300px", "targets": 26,
@@ -87,8 +89,8 @@ $(document).ready( function () {
     });
     // $('#gameresult').DataTable().searchPanes.rebuildPane();
     console.log('DOM fully loaded and parsed');
-    var x = document.querySelectorAll('.dataTables_scrollBody')
-    var i = 0
+    var x = document.querySelectorAll('.dataTables_scrollBody');
+    var i = 0;
     for (i = 0; i < x.length; i++) {
         console.log(x[i]);
         x[i].style.height = "125px";
