@@ -101,10 +101,10 @@ def get_pbp(gid_list):
                             for p in parsed:
                                 t_row.append(p)
                         else:
-                            t_row.append(td.text) # Home Score and Away get added here which adds two more columns
+                            t_row.append(td.text) # Home Score and Away get added here which adds two more columns (30 and 31)
                     #print(t_row)
                     #append entire row of data to data_table
-                    if len(t_row) == 30:
+                    if len(t_row) == 32:
                         table_data.append(t_row)
             quarter += 1
         all_table_data += table_data
@@ -329,24 +329,26 @@ def parse_pbp(p):
     t_sentences_length = len(t_sentences)
 
     # Column variables
-    dt = ""             # defensive type
-    blitz = ""          # if def blitzes this stores position that is blitzing
-    ot = ""             # offensive type
-    rd = ""             # run play direction
-    pressure = ""       # defensive pressure on QB
-    pd = ""             # pass play depth
-    pass_result = ""    # result of pass play
-    pass_detail = ""    # more pass play details
-    turnover = ""       # turnover?
-    sack = ""           # was QB sacked
-    opm = ""            # offensive play maker
-    dpm = ""            # defensive play maker
-    cvrg = ""           # defensive player in coverage
-    cvr = ""            # how well is the offensive player covered
-    penalty = ""        # Was a penalty committed on the play
-    td = ""             # Was there a Touchdown scored on the play
-    yg = 0              # Yards gained on play
-    ypen = ""           # Penalty yards on play
+    dt = ""                     # defensive type
+    blitz = ""                  # if def blitzes this stores position that is blitzing
+    ot = ""                     # offensive type
+    rd = ""                     # run play direction
+    pressure = ""               # defensive pressure on QB
+    pd = ""                     # pass play depth
+    pass_result = ""            # result of pass play
+    pass_detail = ""            # more pass play details
+    turnover = ""               # turnover?
+    sack = ""                   # was QB sacked
+    opm = ""                    # offensive play maker
+    dpm = ""                    # defensive play maker
+    cvrg = ""                   # defensive player in coverage
+    cvr = ""                    # how well is the offensive player covered
+    penalty = ""                # Was a penalty committed on the play
+    td = ""                     # Was there a Touchdown scored on the play
+    yg = 0                      # Yards gained on play
+    ypen = ""                   # Penalty yards on play
+    progression = ""            # QB progression for pass plays (should be num 1 to 5)
+    progression_details = ""    # Details of progression
 
     # If sentence count = 1 then result of play is either a presnap PENALTY, spike the ball, or takes a knee
     if t_sentences_length == 1:
@@ -474,7 +476,64 @@ def parse_pbp(p):
             if re.search(r"throws to .* \(Deep\)", t):
                 pd = "D"
             
-            # to determine coverage and player in coverage
+            pass_depth_lookup = {
+                "Very Short": "VS",
+                "Short": "S",
+                "Medium": "M",
+                "Long": "L",
+                "Deep": "D",
+                "Very Deep": "VD"
+            }
+
+            # Determine QB progression
+            progression = 0
+            for i in t_sentences:
+                if "throws to " in i \
+                    or "pulls in the catch in the end zone" in i \
+                    or "reaches up to pull in the catch in the end zone" in i \
+                    or "makes the catch in the end zone" in i:
+                        progression += 1
+                        break
+                if " is well covered at the " in i:
+                    # g1 = OP, g2 = DP, g3 = PD
+                    progression_find = re.search(r"([\w'-]+) \(([\w'-]+,?[\w'-]*)\) is well covered at the .* \(([\w]+)\)\.", i)
+                    o = progression_find.group(1)
+                    o = find_off(o, off_players)
+                    d = progression_find.group(2)
+                    d = find_def(d, def_players)
+                    pass_depth = pass_depth_lookup[progression_find.group(3)]
+                    progression += 1
+                    progression_details += str(progression) + f": {o},{d},WC,{pass_depth}. "
+                if " is covered at the " in i:
+                    # g1 = OP, g2 = DP, g3 = PD
+                    progression_find = re.search(r"([\w'-]+) \(([\w'-]+,?[\w'-]*)\) is covered at the .* \(([\w]+)\)\.", i)
+                    o = progression_find.group(1)
+                    o = find_off(o, off_players)
+                    d = progression_find.group(2)
+                    d = find_def(d, def_players)
+                    pass_depth = pass_depth_lookup[progression_find.group(3)]
+                    progression += 1
+                    progression_details += str(progression) + f": {o},{d},C,{pass_depth}. "
+                if " can't get the pass off to " in i:
+                    # g1 = OP, g2 = DP, g3 = PD
+                    progression_find = re.search(r"can't get the pass off to ([\w'-]+) \(([\w'-]+,?[\w'-]*)\) at the .* \(([\w]+)\)\.", i)
+                    o = progression_find.group(1)
+                    o = find_off(o, off_players)
+                    d = progression_find.group(2)
+                    d = find_def(d, def_players)
+                    pass_depth = pass_depth_lookup[progression_find.group(3)]
+                    progression += 1
+                    progression_details += str(progression) + f": {o},{d},_,{pass_depth}. "
+                if " doesn't see the wide open " in i:
+                    # g1 = OP, g2 = PD
+                    progression_find = re.search(r"doesn't see the wide open ([\w'-]+) at the .* \(([\w]+)\)\.", i)
+                    o = progression_find.group(1)
+                    o = find_off(o, off_players)
+                    pass_depth = pass_depth_lookup[progression_find.group(2)]
+                    progression += 1
+                    progression_details += str(progression) + f": {o},_,WO,{pass_depth}. "
+
+            # to determine coverage and player in coverage for the thrown pass
             if "throws to a covered" in t:
                 coverage_find = re.search(r" throws to a covered ([\w'-]+) \(([\w'-]+,?[\w'-]*)\)", t)
                 if coverage_find is not None:
@@ -483,6 +542,7 @@ def parse_pbp(p):
                     cvrg = coverage_find.group(2)
                     cvrg = find_def(cvrg, def_players)
                     cvr = "C"
+                    progression_details += str(progression) + f": {opm},{cvrg},{cvr},{pd}. "
                 else:
                     opm = "ERROR"
                     cvrg = "ERROR"
@@ -496,6 +556,7 @@ def parse_pbp(p):
                     cvrg = coverage_find.group(2)
                     cvrg = find_def(cvrg, def_players)
                     cvr = "WC"
+                    progression_details += str(progression) + f": {opm},{cvrg},{cvr},{pd}. "
                 else:
                     opm = "ERR"
                     cvrg = "ERR"
@@ -508,6 +569,7 @@ def parse_pbp(p):
                     opm = find_off(opm, off_players)
                     cvrg = ""
                     cvr = "WO"
+                    progression_details += str(progression) + f": {opm},_,{cvr},{pd}. "
                 else:
                     opm = "ERR"
                     cvrg = "ERR"
@@ -519,16 +581,40 @@ def parse_pbp(p):
                 if coverage_find is not None:
                     opm = coverage_find.group(1)
                     opm = find_off(opm, off_players)
+                    progression_details += str(progression) + f": {opm},_,_,VS. "
                 elif coverage_find2 is not None:
                     opm = coverage_find2.group(1)
                     opm = find_off(opm, off_players)
                     cvrg = coverage_find2.group(2)
                     cvrg = find_def(cvrg, def_players)
+                    progression_details += str(progression) + f": {opm},{cvrg},_,VS. "
                 else:
                     opm = "ERR"
                     cvrg = "ERR"
                     cvr = "ERR"
                     print(f"Error(5.1) using regular expression to find OPM and CVRG in:\n{t}")
+            elif "catch in the end zone" in t:
+                # g1 = OPM
+                coverage_find1 = re.search(r"([\w'-]+?) pulls in the catch in the end zone", t)
+                coverage_find2 = re.search(r"([\w'-]+?) makes the catch in the end zone", t)
+                coverage_find3 = re.search(r"([\w'-]+?) reaches up to pull in the catch in the end zone", t)
+                if coverage_find1 is not None:
+                    opm = coverage_find1.group(1)
+                    opm = find_off(opm, off_players)
+                    progression_details += str(progression) + f": {opm},_,_,_. "
+                elif coverage_find2 is not None:
+                    opm = coverage_find2.group(1)
+                    opm = find_off(opm, off_players)
+                    progression_details += str(progression) + f": {opm},_,_,_. "
+                elif coverage_find3 is not None:
+                    opm = coverage_find3.group(1)
+                    opm = find_off(opm, off_players)
+                    progression_details += str(progression) + f": {opm},_,_,_. "
+                else:
+                    opm = "ERR"
+                    cvrg = "ERR"
+                    cvr = "ERR"
+                    print(f"Error(5.2) using regular expression to find OPM and CVRG in:\n{t}")
             elif "throws to " in t:
                 coverage_find = re.search(r" throws to ([\w'-]+?) \(([\w'-]+,?[\w'-]*)\)", t)
                 if coverage_find is not None:
@@ -536,6 +622,7 @@ def parse_pbp(p):
                     opm = find_off(opm, off_players)
                     cvrg = coverage_find.group(2)
                     cvrg = find_def(cvrg, def_players)
+                    progression_details += str(progression) + f": {opm},{cvrg},_,{pd}. "
                 else:
                     opm = "ERR"
                     cvrg = "ERR"
@@ -576,9 +663,12 @@ def parse_pbp(p):
                 else:
                     dpm = "ERR"
             # captures info about completed pass
-            if "makes the catch." in t or "makes the diving catch" in t or "pulls in the catch." in t or "pull in the catch." in t:
-                pass_result = "C"
-            # 
+            if "makes the catch." in t \
+                or "makes the diving catch" in t \
+                or "pulls in the catch." in t \
+                or "catch in the end zone." in t \
+                or "pull in the catch." in t:
+                    pass_result = "C"
             if "is sacked by " in t:
                 sack = "Y"
                 pressure = 4
@@ -713,27 +803,29 @@ def parse_pbp(p):
     for sent in t_sentences:
         tmp_sent = tmp_sent + sent + "\n"
     
-    result.append(offense)      # index 0
-    result.append(defense)      # index 1
-    result.append(dt)           # index 2
-    result.append(blitz)        # index 3
-    result.append(ot)           # index 4
-    result.append(rd)           # index 5
-    result.append(pressure)     # index 6
-    result.append(pd)           # index 7
-    result.append(cvrg)         # index 8
-    result.append(cvr)          # index 9
-    result.append(pass_result)  # index 10
-    result.append(pass_detail)  # index 11
-    result.append(sack)         # index 12
-    result.append(penalty)      # index 13
-    result.append(turnover)     # index 14
-    result.append(td)           # index 15
-    result.append(yg)           # index 16
-    result.append(opm)          # index 17
-    result.append(dpm)          # index 18
-    result.append(tmp_sent)     # index 19
-    result.append(ypen)         # index 20
+    result.append(offense)              # index 7
+    result.append(defense)              # index 8
+    result.append(dt)                   # index 9
+    result.append(blitz)                # index 10
+    result.append(ot)                   # index 11
+    result.append(rd)                   # index 12
+    result.append(pressure)             # index 13
+    result.append(pd)                   # index 14
+    result.append(cvrg)                 # index 15
+    result.append(cvr)                  # index 16
+    result.append(pass_result)          # index 17
+    result.append(pass_detail)          # index 18
+    result.append(sack)                 # index 19
+    result.append(penalty)              # index 20
+    result.append(turnover)             # index 21
+    result.append(td)                   # index 22
+    result.append(yg)                   # index 23
+    result.append(opm)                  # index 24
+    result.append(dpm)                  # index 25
+    result.append(tmp_sent)             # index 26
+    result.append(ypen)                 # index 27
+    result.append(progression)          # index 28
+    result.append(progression_details)  # index 29
 
     return result
 

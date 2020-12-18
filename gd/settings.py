@@ -11,7 +11,14 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import django_heroku
 import os
-from gd.sec1 import *
+
+# Uncomment this section if running locally
+"""
+try:
+    from gd.sec1 import *
+except:
+    print("Missing gd.sec1 file is expected on Heroku Dev and Production environments as this file is not needed.")
+"""
 import logging
 from pathlib import Path
 import sentry_sdk
