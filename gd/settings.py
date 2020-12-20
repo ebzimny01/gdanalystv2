@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import django_heroku
 import os
 
-# Uncomment this section if running locally
+# Uncomment this TRY-EXCEPT section if running locally
 """
 try:
     from gd.sec1 import *

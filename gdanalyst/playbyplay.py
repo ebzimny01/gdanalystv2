@@ -419,7 +419,7 @@ def parse_pbp(p):
                 print(f"Error(7) using regular expression to find blitzing player in:\n{t}")
 
         # run or pass?
-        if "takes the handoff and rushes" in t or "starts to scramble" or "takes a knee" in t:
+        if "takes the handoff and rushes" in t or "starts to scramble" in t or "takes a knee" in t:
             # rushing play
             ot = "Rn"
             if "rushes wide." in t:
@@ -667,7 +667,8 @@ def parse_pbp(p):
                 or "makes the diving catch" in t \
                 or "pulls in the catch." in t \
                 or "catch in the end zone." in t \
-                or "pull in the catch." in t:
+                or "pull in the catch." in t \
+                or "catches in a nice pass from" in t:
                     pass_result = "C"
             if "is sacked by " in t:
                 sack = "Y"
