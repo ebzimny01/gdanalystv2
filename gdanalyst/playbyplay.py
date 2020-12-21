@@ -665,7 +665,7 @@ def parse_pbp(p):
             # captures info about completed pass
             if "makes the catch." in t \
                 or "makes the diving catch" in t \
-                or "pulls in the catch." in t \
+                or "pulls in the catch" in t \
                 or "catch in the end zone." in t \
                 or "pull in the catch." in t \
                 or "catches in a nice pass from" in t:
