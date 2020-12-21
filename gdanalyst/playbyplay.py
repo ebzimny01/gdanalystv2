@@ -419,30 +419,33 @@ def parse_pbp(p):
                 print(f"Error(7) using regular expression to find blitzing player in:\n{t}")
 
         # run or pass?
-        if "takes the handoff and rushes" in t or "starts to scramble" in t or "takes a knee" in t:
-            # rushing play
-            ot = "Rn"
-            if "rushes wide." in t:
-                rd = "Out"
-            if "rushes inside." in t:
-                rd = "In"
-            if "scramble" in t:
-                rd = "Scr"
-            if "takes a knee" in t:
-                rd = "Knee"
-            # Fumbles appear to only happen on running plays
-            if "fumbles the ball" in t and not re.search(r" fumbles the ball but it is recovered by .* to maintain possession", t):
-                turnover = "Fum"
-                dpm_find = re.search(r"([\w'-]+) makes the pick up", t)
-                dpm_find2 = re.search(r"It's recovered by ([\w'-]+)", t)
-                if dpm_find is not None:
-                    dpm = dpm_find.group(1)
-                    dpm = find_def(dpm, def_players)
-                elif dpm_find2 is not None:
-                    dpm = dpm_find2.group(1)
-                    dpm = find_def(dpm, def_players)
-                else:
-                    dpm = "ERR"
+        if "takes the handoff and rushes" in t \
+            or "takes the snap and rushes" in t \
+            or "starts to scramble" in t \
+            or "takes a knee" in t:
+                # rushing play
+                ot = "Rn"
+                if "rushes wide." in t:
+                    rd = "Out"
+                if "rushes inside." in t:
+                    rd = "In"
+                if "scramble" in t:
+                    rd = "Scr"
+                if "takes a knee" in t:
+                    rd = "Knee"
+                # Fumbles appear to only happen on running plays
+                if "fumbles the ball" in t and not re.search(r" fumbles the ball but it is recovered by .* to maintain possession", t):
+                    turnover = "Fum"
+                    dpm_find = re.search(r"([\w'-]+) makes the pick up", t)
+                    dpm_find2 = re.search(r"It's recovered by ([\w'-]+)", t)
+                    if dpm_find is not None:
+                        dpm = dpm_find.group(1)
+                        dpm = find_def(dpm, def_players)
+                    elif dpm_find2 is not None:
+                        dpm = dpm_find2.group(1)
+                        dpm = find_def(dpm, def_players)
+                    else:
+                        dpm = "ERR"
 
         if "drops back to pass." in t or "lines up in shotgun and takes the snap" in t:
             # passing play
@@ -755,13 +758,14 @@ def parse_pbp(p):
 
         # OPM - offensive play maker
         for i in t_sentences:
-            if (rd == "Out" or rd == "In") and "takes the handoff" in i:
-                opm_find = re.search(r"(^[\w'-]+ [\w'-]+) takes the handoff", i)
-                if opm_find is not None:
-                    opm = opm_find.group(1)
-                    opm = find_off(opm, off_players)
-                else:
-                    opm = "ERR"
+            if (rd == "Out" or rd == "In") \
+                and ("takes the handoff" in i or "takes the snap and rushes" in i):
+                    opm_find = re.search(r"(^[\w'-]+ [\w'-]+) takes the [\w]+ and rushes", i)
+                    if opm_find is not None:
+                        opm = opm_find.group(1)
+                        opm = find_off(opm, off_players)
+                    else:
+                        opm = "ERR"
             if rd == "Scr" and "starts to scramble" in i:
                 opm_find = re.search(r"(^[\w'-]+) starts to scramble", i)
                 if opm_find is not None:
