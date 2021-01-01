@@ -736,9 +736,15 @@ def parse_pbp(p):
 
         if "PENALTY" in t and "yards, enforced at" in t and "yard Penalty added to the end of the play" not in t:
             # g1 = player name, g2 = type of penalty, g3 = yards
-            penalty_info = re.search(r"\s?PENALTY.*\(([a-zA-z'\- ]*)\),\s(\w*\s?\w*\s?\w*),?\s(\-?\d{1,2})", t)
-            penalty = penalty_info.group(2)
-            ypen = penalty_info.group(3)
+            penalty_info = re.search(r"\s?PENALTY.*?\(?([a-zA-z'\- ]*)?\)?,\s(\w*\s?\w*\s?\w*),?\s(\-?\d{1,2})", t)
+            if penalty_info is not None:
+                penalty = penalty_info.group(2)
+                ypen = penalty_info.group(3)
+            else:
+                penalty = "ERR"
+                ypen = "ERR"
+                print(f"Error(20): regex could not find match for a penalty play.\npbptext = {t}")
+            
             # Treating these penalties as if the play didn't happen.
             # Any offensive yards gained are removed and pass_result removed.
             # Leaving other variables untouched.
