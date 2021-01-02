@@ -2,6 +2,7 @@ import requests, urllib.parse, html5lib, lxml, re, datetime
 from bs4 import BeautifulSoup
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 import asyncio
+import time
 from aiohttp import ClientSession
 import urllib.error
 import nltk
@@ -81,7 +82,7 @@ async def get_game_pages(gid_list):
 def get_pbp(gid_pages):
     # table to collect details for all GIDs in list
     all_table_data = []
-
+    start = time.perf_counter()
     for gid,html in gid_pages.items():
         gamepage_soup = BeautifulSoup(html[0], "html.parser")
         team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
@@ -169,6 +170,8 @@ def get_pbp(gid_pages):
                         table_data.append(t_row)
             quarter += 1
         all_table_data += table_data
+    duration = time.perf_counter() - start
+    print(f"It took {duration:4.2f} seconds to parse play by play results for {len(gid_pages)} games.")
     return all_table_data
 
 def parse_pbp(p):
