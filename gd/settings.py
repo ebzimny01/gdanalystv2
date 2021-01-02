@@ -12,13 +12,14 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import django_heroku
 import os
 
-# Uncomment this TRY-EXCEPT section if running locally
-"""
-try:
-    from gd.sec1 import *
-except:
-    print("Missing gd.sec1 file is expected on Heroku Dev and Production environments as this file is not needed.")
-"""
+# This is only executed if running on local computer
+
+if os.getenv("HOME") == "/home/edz":
+    try:
+        from gd.sec1 import *
+    except:
+        print("Missing gd.sec1 file is expected on Heroku Dev and Production environments as this file is not needed.")
+
 import logging
 from pathlib import Path
 import sentry_sdk
