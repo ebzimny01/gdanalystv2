@@ -1,6 +1,9 @@
-import json, requests, urllib.parse
+import json
+import requests
+import urllib.parse
+import lxml
+import time
 import django_rq
-import django_redis
 from django.urls import reverse
 from urllib.parse import urlencode
 from rq.job import Job
@@ -112,7 +115,7 @@ def player(request, worldname, division):
     playerid = request.GET['recruit']
     playerURL = f"https://www.whatifsports.com/gd/RecruitProfile/Ratings.aspx?rid={playerid}"
     playerpage = requests.get(playerURL)
-    soup = BeautifulSoup(playerpage.content, 'html.parser')
+    soup = BeautifulSoup(playerpage.content, 'lxml')
     name = soup.find(id="ctl00_ctl00_ctl00_Main_Main_name")
     position = soup.find(id="ctl00_ctl00_ctl00_Main_Main_position")
     hometown = soup.find(id="ctl00_ctl00_ctl00_Main_Main_homeTown")
@@ -381,7 +384,7 @@ def display_game_results(request, jobid):
 def get_schedule_table(wisid):
     team_schedule_URL = f"https://www.whatifsports.com/gd/TeamProfile/Schedule.aspx?tid={wisid}"
     team_schedule_page = requests.get(team_schedule_URL)
-    soup = BeautifulSoup(team_schedule_page.content, 'html.parser')
+    soup = BeautifulSoup(team_schedule_page.content, 'lxml')
     schedule_headers = soup.find_all(class_="ContentBoxWrapper")
     gameresults_table = []
     for h in schedule_headers:
@@ -455,7 +458,7 @@ def teamroster(wisid):
 
     team_roster_URL = f"https://www.whatifsports.com/gd/TeamProfile/Roster.aspx?tid={wisid}"
     team_roster_page = requests.get(team_roster_URL)
-    soup = BeautifulSoup(team_roster_page.content, 'html.parser')
+    soup = BeautifulSoup(team_roster_page.content, 'lxml')
 
     # grabs the roster table
     roster_table = soup.find(id="tblRosterList")
