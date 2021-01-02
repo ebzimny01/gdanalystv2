@@ -5,6 +5,7 @@ import asyncio
 import time
 from aiohttp import ClientSession
 import urllib.error
+import lxml
 import nltk
 import django_rq
 import django_redis
@@ -84,7 +85,7 @@ def get_pbp(gid_pages):
     all_table_data = []
     start = time.perf_counter()
     for gid,html in gid_pages.items():
-        gamepage_soup = BeautifulSoup(html[0], "html.parser")
+        gamepage_soup = BeautifulSoup(html[0], "lxml")
         team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
         # If an invalid Game ID is entered, this next line will fail with KeyError exception
         try:
@@ -119,7 +120,7 @@ def get_pbp(gid_pages):
         quarter = 1
 
         for i in range(qtr_count):
-            soup = BeautifulSoup(html[quarter], 'html.parser')
+            soup = BeautifulSoup(html[quarter], 'lxml')
             pbp_table = soup.find(id="ctl00_ctl00_Main_Main_PBPTable")
             pbp_table_rows = pbp_table.find_all("tr")
             #print(pbp_table_rows)
