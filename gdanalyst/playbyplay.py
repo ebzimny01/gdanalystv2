@@ -15,16 +15,13 @@ from .models import School
 
 @job
 def get_pbp(gid_list):
-    # Establish a sesssion connection to reuse in attempt to improve speed
-    requests_session = requests.Session()
-    
     # table to collect details for all GIDs in list
     all_table_data = []
     start = time.perf_counter()
     for gid in gid_list:
         game_baseURL = "https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid="
-        gamepage = requests_session.get(game_baseURL + str(gid))
-        gamepage_soup = BeautifulSoup(gamepage.content, "lxml")
+        gamepage = requests.get(game_baseURL + str(gid))
+        gamepage_soup = BeautifulSoup(gamepage.content, "html.parser")
         team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
         # If an invalid Game ID is entered, this next line will fail with KeyError exception
         try:
@@ -61,9 +58,9 @@ def get_pbp(gid_list):
         for q in pbp_q_suffix:
             pbpURL = pbp_baseURL + str(gid) + q
             print(pbpURL)
-            pbprawpage = requests_session.get(pbpURL)
+            pbprawpage = requests.get(pbpURL)
 
-            soup = BeautifulSoup(pbprawpage.content, 'lxml')
+            soup = BeautifulSoup(pbprawpage.content, 'html.parser')
             pbp_table = soup.find(id="ctl00_ctl00_Main_Main_PBPTable")
             pbp_table_rows = pbp_table.find_all("tr")
             #print(pbp_table_rows)
