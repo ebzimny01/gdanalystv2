@@ -1,6 +1,9 @@
 import requests, urllib.parse, html5lib, lxml, re, datetime
 from bs4 import BeautifulSoup
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+import asyncio
+from aiohttp import ClientSession
+import urllib.error
 import nltk
 import django_rq
 import django_redis
@@ -10,15 +13,77 @@ from nltk import tokenize
 # import pandas as pd
 from .models import School
 
+
+def get_gid_URLs(gid_list):
+    game_baseURL = "https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid="
+    pbp_baseURL = "https://www.whatifsports.com/gd/GameResults/PlayByPlay.aspx?gid="
+    pbp_q_suffix = ['&quarter=1&view=1', '&quarter=2&view=1', '&quarter=3&view=1', '&quarter=4&view=1']
+    gid_URLS = []
+    for each in gid_list:
+        gid_URLS.append([
+            (game_baseURL + str(each)),
+            (pbp_baseURL + str(each) + pbp_q_suffix[0]),
+            (pbp_baseURL + str(each) + pbp_q_suffix[1]),
+            (pbp_baseURL + str(each) + pbp_q_suffix[2]),
+            (pbp_baseURL + str(each) + pbp_q_suffix[3])
+        ])
+    
+    return gid_URLS
+
+
+async def get_gid_details(url, session):
+    """Get game ID URL HTML content (asynchronously)"""
+    try:
+        resp = await session.request(method='GET', url=url)
+        resp.raise_for_status()
+        print(f"Response status ({url}): {resp.status}")
+    except HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"An error ocurred: {err}")
+    response_content = resp.content
+    return response_content
+
+
+async def get_HTML(url, session):
+    res = await get_gid_details(url, session)
+    if not res:
+        return None
+    content = await res.read()
+    return content
+
+
+async def get_game_pages(gid_list):
+    
+    URLS = get_gid_URLs(gid_list)
+    html_content = []
+    
+    async with ClientSession() as session:
+        tasks = []
+        for each in URLS:
+            for url in each:
+                tasks.append(
+                    get_HTML(url, session)
+                )
+        html_content = await asyncio.gather(*tasks)
+    
+    gid_pages = {}
+    for gid in gid_list:
+        for each in html_content:
+            if f"BoxScore.aspx?gid={gid}" in str(each):
+                gid_pages[gid] = [each]
+            if f"PlayByPlay.aspx?gid={gid}" in str(each):
+                gid_pages[gid].append(each)
+    return gid_pages
+
+
 @job
-def get_pbp(gid_list):
+def get_pbp(gid_pages):
     # table to collect details for all GIDs in list
     all_table_data = []
 
-    for gid in gid_list:
-        game_baseURL = "https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid="
-        gamepage = requests.get(game_baseURL + str(gid))
-        gamepage_soup = BeautifulSoup(gamepage.content, "html.parser")
+    for gid,html in gid_pages.items():
+        gamepage_soup = BeautifulSoup(html[0], "html.parser")
         team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
         # If an invalid Game ID is entered, this next line will fail with KeyError exception
         try:
@@ -42,22 +107,18 @@ def get_pbp(gid_list):
         offense = ""
         print(f"Away Team = {team_away}")
         print(f"Home Team = {team_home}")
-
-        pbp_baseURL = "https://www.whatifsports.com/gd/GameResults/PlayByPlay.aspx?gid="
-        pbp_q_suffix = ['&quarter=1&view=1', '&quarter=2&view=1', '&quarter=3&view=1', '&quarter=4&view=1']
         
+        # Determine if html has 2 quarters or 4 quarters
+        qtr_count = len(html) - 1
+
         # table to collect details for single GID
         table_data = []
 
         # variable to keep track of which quarter is being evaluated
         quarter = 1
 
-        for q in pbp_q_suffix:
-            pbpURL = pbp_baseURL + str(gid) + q
-            print(pbpURL)
-            pbprawpage = requests.get(pbpURL)
-
-            soup = BeautifulSoup(pbprawpage.content, 'html.parser')
+        for i in range(qtr_count):
+            soup = BeautifulSoup(html[quarter], 'html.parser')
             pbp_table = soup.find(id="ctl00_ctl00_Main_Main_PBPTable")
             pbp_table_rows = pbp_table.find_all("tr")
             #print(pbp_table_rows)

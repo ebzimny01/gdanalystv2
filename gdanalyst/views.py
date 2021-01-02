@@ -1,16 +1,19 @@
-import json, requests, urllib.parse
-import django_rq
-import django_redis
-from django.urls import reverse
+import json, requests
+import asyncio
+import multiprocessing
+import time
+from aiohttp import ClientSession
 from urllib.parse import urlencode
+from math import radians, cos, sin, asin, sqrt 
+import django_rq
 from rq.job import Job
+from django.urls import reverse
 from django_redis import get_redis_connection
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET
-from bs4 import BeautifulSoup
 from django import forms
-from math import radians, cos, sin, asin, sqrt 
+from bs4 import BeautifulSoup
 from .models import School, City
 from .playbyplay import *
 
@@ -18,6 +21,7 @@ from .playbyplay import *
 
 class SelectSchoolForm(forms.Form):
     world = forms.ModelChoiceField(label="World", queryset=School.objects.values_list('world').order_by('world').distinct())
+
 
 def index(request):
     selectschool = SelectSchoolForm()
@@ -52,6 +56,7 @@ def schools(request):
         "coachcount": len(school_list_hct)
     })
 
+
 def wisid(request, wisid):
     wid = School.objects.get(wis_id=wisid)
     coach = wid.coach
@@ -75,16 +80,19 @@ def wisid(request, wisid):
         "combined": combined_sorted
     })
 
+
 def location(request, wisid):
     school = School.objects.get(wis_id=wisid)
     coach = school.coach
     data = [school.location.latitude, school.location.longitude, school.school_short, coach]
     return JsonResponse(data, safe=False)
 
+
 def world(request, worldname):
     return render(request, "gdanalyst/world.html", {
         "world": worldname
     })
+
 
 def division(request, worldname, division):
     school_list = School.objects.filter(world=worldname).filter(division=division)
@@ -93,6 +101,7 @@ def division(request, worldname, division):
         "division": division,
         "schools": school_list
     })
+
 
 def get_distance(teamloc, teams):
     temp = {}
@@ -170,6 +179,7 @@ def town(request, worldname, division):
             "combined": combined_sorted
         })
 
+
 def get_distance_from(player_or_loc, teams):
     temp = {}
     # Split into city and state
@@ -205,6 +215,7 @@ def get_distance_from(player_or_loc, teams):
             dist = round(distance(lat, loc.latitude, lon, loc.longitude))
             temp[team.wis_id] = dist
         return temp, lat, lon
+
 
 def state_lookup(state_abbr):
     states = {
@@ -262,6 +273,7 @@ def state_lookup(state_abbr):
     }
     return states[state_abbr]
 
+
 # Python 3 program to calculate Distance Between Two Points on Earth 
 # From https://www.geeksforgeeks.org/program-distance-two-points-earth/#:~:text=For%20this%20divide%20the%20values,is%20the%20radius%20of%20Earth.
 def distance(lat1, lat2, lon1, lon2): 
@@ -285,22 +297,24 @@ def distance(lat1, lat2, lon1, lon2):
        
     # calculate the result 
     return(c * r)      
-# driver code  
-# lat1 = 53.32055555555556
-# lat2 = 53.31861111111111
-# lon1 = -1.7297222222222221
-# lon2 =  -1.6997222222222223
-# print(distance(lat1, lat2, lon1, lon2), "K.M") 
+
 
 def gameid(request):
     return render(request, "gdanalyst/gameid.html")
 
+
 def pbp(request):
     gid = request.GET['gameid']
+    start = time.perf_counter()
+    gid_pages = asyncio.run(get_game_pages([gid]))
+    duration = time.perf_counter() - start
+    msg = 'It took {:4.2f} seconds to gather HTML pages.'
+    print(msg.format(duration))
+
     # Use with delay to use rqworker queue (production)
-    gid_result = get_pbp.delay([gid])
+    gid_result = get_pbp.delay(gid_pages)
     # Use without delay to bypass rqworker queue - used for debugging
-    # gid_result = get_pbp([gid])
+    # gid_result = get_pbp(gid_pages)
     if gid_result == 1:
         return 1
     else:
@@ -308,6 +322,7 @@ def pbp(request):
         query_string = urlencode({'jobid': gid_result.id})
         url = "{}?{}".format(base_url, query_string)
         return redirect(url)
+
 
 def teamschedule(request, wisid):
     wid = School.objects.get(wis_id=wisid)
@@ -328,19 +343,31 @@ def get_all_results(request, wisid):
         for each in schedule_table:
             if each[6] != "#":
                 tmp.append(each[6]) 
+        start = time.perf_counter()
+        gid_pages = asyncio.run(get_game_pages(tmp))
+        duration = time.perf_counter() - start
+        msg = 'It took {:4.2f} seconds to gather HTML pages.'
+        print(msg.format(duration))
+
         # Use with delay to use rqworker queue (production)
-        results_job =  get_pbp.delay(tmp)
+        results_job =  get_pbp.delay(gid_pages)
         # Use without delay to bypass rqworker queue - used for debugging
-        # results_job =  get_pbp(tmp)
+        # results_job =  get_pbp(gid_pages)
     elif "humans" in request.path:
         tmp = []
         for each in schedule_table:
             if each[4] != "Sim AI" and each[6] != "#":
                 tmp.append(each[6]) 
+        start = time.perf_counter()
+        gid_pages = asyncio.run(get_game_pages(tmp))
+        duration = time.perf_counter() - start
+        msg = 'It took {:4.2f} seconds to gather HTML pages.'
+        print(msg.format(duration))
+
         # Use with delay to use rqworker queue (production)
-        results_job =  get_pbp.delay(tmp)
+        results_job =  get_pbp.delay(gid_pages)
         # Use without delay to bypass rqworker queue - used for debugging
-        # results_job =  get_pbp(tmp)
+        # results_job =  get_pbp(gid_pages)
     base_url = reverse("loading_game_results")
     query_string = urlencode({'jobid': results_job.id})
     url = "{}?{}".format(base_url, query_string)
@@ -377,6 +404,7 @@ def display_game_results(request, jobid):
         return render(request, "gdanalyst/gameresult.html", {
             "result": job.result
     })
+
 
 def get_schedule_table(wisid):
     team_schedule_URL = f"https://www.whatifsports.com/gd/TeamProfile/Schedule.aspx?tid={wisid}"
@@ -440,6 +468,7 @@ def get_schedule_table(wisid):
 
                 gameresults_table.append(temp_row)
     return gameresults_table
+
 
 def teamroster(wisid):
     QB = 0
