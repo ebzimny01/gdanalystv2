@@ -1,9 +1,12 @@
-import requests, urllib.parse, html5lib, lxml, re, datetime
+import requests
+import time
+import urllib.parse
+import lxml
+import re
+import datetime
 from bs4 import BeautifulSoup
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-import nltk
 import django_rq
-import django_redis
 from django_rq import job
 from nltk import tokenize
 # nltk.download('punkt')
@@ -12,13 +15,16 @@ from .models import School
 
 @job
 def get_pbp(gid_list):
+    # Establish a sesssion connection to reuse in attempt to improve speed
+    requests_session = requests.Session()
+    
     # table to collect details for all GIDs in list
     all_table_data = []
-
+    start = time.perf_counter()
     for gid in gid_list:
         game_baseURL = "https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid="
-        gamepage = requests.get(game_baseURL + str(gid))
-        gamepage_soup = BeautifulSoup(gamepage.content, "html.parser")
+        gamepage = requests_session.get(game_baseURL + str(gid))
+        gamepage_soup = BeautifulSoup(gamepage.content, "lxml")
         team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
         # If an invalid Game ID is entered, this next line will fail with KeyError exception
         try:
@@ -55,9 +61,9 @@ def get_pbp(gid_list):
         for q in pbp_q_suffix:
             pbpURL = pbp_baseURL + str(gid) + q
             print(pbpURL)
-            pbprawpage = requests.get(pbpURL)
+            pbprawpage = requests_session.get(pbpURL)
 
-            soup = BeautifulSoup(pbprawpage.content, 'html.parser')
+            soup = BeautifulSoup(pbprawpage.content, 'lxml')
             pbp_table = soup.find(id="ctl00_ctl00_Main_Main_PBPTable")
             pbp_table_rows = pbp_table.find_all("tr")
             #print(pbp_table_rows)
@@ -108,6 +114,8 @@ def get_pbp(gid_list):
                         table_data.append(t_row)
             quarter += 1
         all_table_data += table_data
+    duration = time.perf_counter() - start
+    print(f"It took {duration:4.2f} seconds to parse play by play results for {len(gid_list)} games.")
     return all_table_data
 
 def parse_pbp(p):
