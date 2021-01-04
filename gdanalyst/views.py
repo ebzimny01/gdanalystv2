@@ -1,9 +1,4 @@
-import json
 import requests
-import urllib.parse
-import lxml
-import time
-import sys
 import django_rq
 from django.urls import reverse
 from urllib.parse import urlencode
@@ -17,6 +12,7 @@ from django import forms
 from math import radians, cos, sin, asin, sqrt 
 from .models import School, City
 from .playbyplay import *
+from .utils import total_size
 
 # Create your views here.
 
@@ -370,6 +366,7 @@ def display_game_results(request, jobid):
     conn = django_rq.get_connection('default')
     try:
         job = Job.fetch(jobid, connection=conn)
+        print(f"job ID {jobid} size of result = {total_size(job.result)}")
     except Exception as e:
         return HttpResponse(f"{e}<br><br>Game Results are cached for 10 minutes. \
                             Either the game results have expired or there is a \
@@ -378,7 +375,6 @@ def display_game_results(request, jobid):
         # This implies error with gameid
         return HttpResponse(f"Error: Invalid GameID = {job.args}")
     else:
-        print(f"job ID {jobid} size of result = {sys.getsizeof(job.result)}")
         return render(request, "gdanalyst/gameresult.html", {
             "result": job.result
     })
