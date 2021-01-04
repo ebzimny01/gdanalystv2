@@ -1,5 +1,6 @@
 import requests
 import time
+import sys
 import urllib.parse
 import lxml
 import re
@@ -24,6 +25,7 @@ def get_pbp(gid_list):
     for gid in gid_list:
         game_baseURL = "https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid="
         gamepage = requests_session.get(game_baseURL + str(gid))
+        print(f"gamepage.content size = {sys.getsizeof(gamepage.content)}")
         gamepage_soup = BeautifulSoup(gamepage.content, "lxml")
         team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")
         # If an invalid Game ID is entered, this next line will fail with KeyError exception
@@ -62,7 +64,7 @@ def get_pbp(gid_list):
             pbpURL = pbp_baseURL + str(gid) + q
             print(pbpURL)
             pbprawpage = requests_session.get(pbpURL)
-
+            print(f"pbprawpage.content size = {sys.getsizeof(pbprawpage.content)}")
             soup = BeautifulSoup(pbprawpage.content, 'lxml')
             pbp_table = soup.find(id="ctl00_ctl00_Main_Main_PBPTable")
             pbp_table_rows = pbp_table.find_all("tr")
@@ -116,6 +118,7 @@ def get_pbp(gid_list):
         all_table_data += table_data
     duration = time.perf_counter() - start
     print(f"It took {duration:4.2f} seconds to parse play by play results for {len(gid_list)} games.")
+    print(f"all_table_data size = {sys.getsizeof(all_table_data)}")
     return all_table_data
 
 def parse_pbp(p):

@@ -3,6 +3,7 @@ import requests
 import urllib.parse
 import lxml
 import time
+import sys
 import django_rq
 from django.urls import reverse
 from urllib.parse import urlencode
@@ -377,6 +378,7 @@ def display_game_results(request, jobid):
         # This implies error with gameid
         return HttpResponse(f"Error: Invalid GameID = {job.args}")
     else:
+        print(f"job ID {jobid} size of result = {sys.getsizeof(job.result)}")
         return render(request, "gdanalyst/gameresult.html", {
             "result": job.result
     })
