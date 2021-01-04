@@ -1,9 +1,6 @@
-import json, requests
+import requests
 import asyncio
-import multiprocessing
 import time
-import lxml
-from aiohttp import ClientSession
 from urllib.parse import urlencode
 from math import radians, cos, sin, asin, sqrt 
 import django_rq
@@ -17,6 +14,7 @@ from django import forms
 from bs4 import BeautifulSoup
 from .models import School, City
 from .playbyplay import *
+from .utils import total_size
 
 # Create your views here.
 
@@ -394,6 +392,7 @@ def display_game_results(request, jobid):
     conn = django_rq.get_connection('default')
     try:
         job = Job.fetch(jobid, connection=conn)
+        print(f"job ID {jobid} size of result = {total_size(job.result)}")
     except Exception as e:
         return HttpResponse(f"{e}<br><br>Game Results are cached for 10 minutes. \
                             Either the game results have expired or there is a \

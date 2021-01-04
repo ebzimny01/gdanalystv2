@@ -1,19 +1,16 @@
-import requests, urllib.parse, html5lib, lxml, re, datetime
+import re
+import datetime
 from bs4 import BeautifulSoup
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 import asyncio
 import time
 from aiohttp import ClientSession
-import urllib.error
-import lxml
-import nltk
-import django_rq
-import django_redis
 from django_rq import job
 from nltk import tokenize
 # nltk.download('punkt')
 # import pandas as pd
 from .models import School
+from .utils import total_size
 
 
 def get_gid_URLs(gid_list):
@@ -76,6 +73,7 @@ async def get_game_pages(gid_list):
                 gid_pages[gid] = [each]
             if f"PlayByPlay.aspx?gid={gid}" in str(each):
                 gid_pages[gid].append(each)
+    print(f"gid_pages total size = {total_size(gid_pages)}")
     return gid_pages
 
 
@@ -173,6 +171,7 @@ def get_pbp(gid_pages):
         all_table_data += table_data
     duration = time.perf_counter() - start
     print(f"It took {duration:4.2f} seconds to parse play by play results for {len(gid_pages)} games.")
+    print(f"all_table_data total size = {total_size(all_table_data)}")
     return all_table_data
 
 def parse_pbp(p):
