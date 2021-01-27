@@ -12,13 +12,13 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import django_heroku
 import os
 
-# Uncomment this TRY-EXCEPT section if running locally
-"""
-try:
-    from gd.sec1 import *
-except:
-    print("Missing gd.sec1 file is expected on Heroku Dev and Production environments as this file is not needed.")
-"""
+# This section only runs if running on local machine
+if os.getenv("HOME") == "/home/edz":
+    try:
+        from gd.sec1 import *
+    except:
+        print("Missing gd.sec1 file is expected on Heroku Dev and Production environments as this file is not needed.")
+
 import logging
 from pathlib import Path
 import sentry_sdk
@@ -110,7 +110,7 @@ WSGI_APPLICATION = 'gd.wsgi.application'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://localhost:6379/1', 
+        'LOCATION': 'redis://localhost:6379/0', 
         'TIMEOUT': 1200,
         'OPTIONS': { 
             'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
