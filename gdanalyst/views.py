@@ -2,6 +2,7 @@ import requests
 import django_rq
 from django.urls import reverse
 from urllib.parse import urlencode
+from requests.api import head
 from rq.job import Job
 from django_redis import get_redis_connection
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
@@ -111,7 +112,8 @@ def get_distance(teamloc, teams):
 def player(request, worldname, division):
     playerid = request.GET['recruit']
     playerURL = f"https://www.whatifsports.com/gd/RecruitProfile/Ratings.aspx?rid={playerid}"
-    playerpage = requests.get(playerURL)
+    headers = {'User-Agent': 'gdanalyst-get-player/1.1.5 python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+    playerpage = requests.get(playerURL, headers=headers)
     soup = BeautifulSoup(playerpage.content, 'lxml')
     name = soup.find(id="ctl00_ctl00_ctl00_Main_Main_name")
     position = soup.find(id="ctl00_ctl00_ctl00_Main_Main_position")
@@ -187,7 +189,8 @@ def get_distance_from(player_or_loc, teams):
     # Line below is new way that specifies city and state specifically in the search parameters
     find_location_url = f"https://nominatim.openstreetmap.org/search?city={town}&state={state_long}&country=USA&format=json"
     # https://nominatim.org/release-docs/develop/api/Search/
-    response = requests.get(find_location_url).json()
+    headers = {'User-Agent': 'gdanalyst-get-distance/1.1.5 python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+    response = requests.get(find_location_url, headers=headers).json()
     if len(response) == 0:
         # This means response is emtpy and there was a problem
         return 1
@@ -381,7 +384,8 @@ def display_game_results(request, jobid):
 
 def get_schedule_table(wisid):
     team_schedule_URL = f"https://www.whatifsports.com/gd/TeamProfile/Schedule.aspx?tid={wisid}"
-    team_schedule_page = requests.get(team_schedule_URL)
+    headers = {'User-Agent': 'gdanalyst-get-schedule/1.1.5 python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+    team_schedule_page = requests.get(team_schedule_URL, headers=headers)
     soup = BeautifulSoup(team_schedule_page.content, 'lxml')
     schedule_headers = soup.find_all(class_="ContentBoxWrapper")
     gameresults_table = []
@@ -455,7 +459,8 @@ def teamroster(wisid):
     P = 0
 
     team_roster_URL = f"https://www.whatifsports.com/gd/TeamProfile/Roster.aspx?tid={wisid}"
-    team_roster_page = requests.get(team_roster_URL)
+    headers = {'User-Agent': 'gdanalyst-get-roster/1.1.5 python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+    team_roster_page = requests.get(team_roster_URL, headers=headers)
     soup = BeautifulSoup(team_roster_page.content, 'lxml')
 
     # grabs the roster table
