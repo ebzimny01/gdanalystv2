@@ -108,7 +108,7 @@ def get_distance(teamloc, teams):
 # No longer used
 # def map(request):
 #    return render(request, "gdanalyst/map.html")
-
+'''
 def player(request, worldname, division):
     playerid = request.GET['recruit']
     playerURL = f"https://www.whatifsports.com/gd/RecruitProfile/Ratings.aspx?rid={playerid}"
@@ -147,7 +147,7 @@ def player(request, worldname, division):
                 "coachcount": len(hct),
                 "combined": combined_sorted
             })
-
+'''
 
 def town(request, worldname, division):
     town_state = request.GET['town']
