@@ -21,9 +21,10 @@ def get_pbp(gid_list):
     # table to collect details for all GIDs in list
     all_table_data = []
     start = time.perf_counter()
+    headers = {'User-Agent': 'gdanalyst-get-playbyplay/1.1.5 python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
     for gid in gid_list:
         game_baseURL = "https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid="
-        gamepage = requests_session.get(game_baseURL + str(gid))
+        gamepage = requests_session.get(game_baseURL + str(gid), headers=headers)
         print(f"gamepage.content size = {total_size(gamepage.content)}")
         gamepage_soup = BeautifulSoup(gamepage.content, "lxml")
         team_away_tag = gamepage_soup.find(id="ctl00_ctl00_Main_Main_lnkAwayTeam")

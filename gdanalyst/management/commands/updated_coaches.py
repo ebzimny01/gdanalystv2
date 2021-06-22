@@ -16,11 +16,13 @@ class Command(BaseCommand):
             raise CommandError('Error accessing School model data')
         baseURL = 'https://www.whatifsports.com/gd/TeamProfile/PlayerRatings.aspx?tid='
         coach_total = len(coaches)
+        request_session = requests.Session()
+        headers = {'User-Agent': 'gdanalyst-coach-update-scheduled-job/1.1.5 python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
         with Bar('Updating coaches', max=coach_total) as bar:
             for coach in coaches:
                 teamURL = baseURL + str(coach.wis_id)
                 try:
-                    teampage = requests.get(teamURL)
+                    teampage = request_session.get(teamURL, headers=headers)
                     teampage.raise_for_status()
                 except requests.exceptions.HTTPError as errh:
                     raise CommandError("Http Error:",errh)
