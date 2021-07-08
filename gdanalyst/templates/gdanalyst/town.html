@@ -52,7 +52,7 @@
                         <th style="visibility: hidden;" scope="col">Longitude</th>
                     </tr>
                         {% for key, value in combined %}
-                        <tr class="hct">
+                        <tr class="hct" id="{{ key }}">
                             <td class="sch_short"><a id="{{ key }}" href="/{{ key }}">{{ value.0 }}</a></td>
                             <td class="sch_coach"> {{ value.1 }}</td>
                             <td id="distanceColumn"> {{ value.2 }}</td>
