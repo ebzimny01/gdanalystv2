@@ -32,8 +32,8 @@
             <div class="row">
                 <form action="/world/{{ world }}/{{ division }}/player" id="player_div_form" method="GET" class="needs-validation" novalidate>
                     <div class="m-1 input-group input-group-lg">
-                        <input type="text" name="recruit" id="recruitid" class="form-control" class="form-control" minlength="8" maxlength="8" pattern="^[\d]{8}" placeholder="8-digit recruit ID" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
-                        <button type="submit" form="player_div_form" class="ml-2 btn btn-success btn-lg">Map Recruit</button>
+                        <input type="text" name="recruit" id="recruitid" class="form-control" class="form-control" minlength="8" maxlength="8" pattern="^[\d]{8}" placeholder="8-digit recruit ID" aria-label="Default" aria-describedby="inputGroup-sizing-default" required hidden disabled>
+                        <button type="submit" form="player_div_form" class="ml-2 btn btn-success btn-lg" hidden disabled>Map Recruit</button>
                     </div>
                 </form>
             </div>
