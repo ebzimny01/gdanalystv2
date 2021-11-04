@@ -84,8 +84,8 @@
                             <th scope="col">School</th>
                             <th scope="col">Coach</th>
                             <th scope="col">Distance (miles)</th>
-                            <th style="visibility: hidden;" scope="col">Latitude</th>
-                            <th style="visibility: hidden;" scope="col">Longitude</th>
+                            <th style="display: none" scope="col">Latitude</th>
+                            <th style="display: none" scope="col">Longitude</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -93,9 +93,9 @@
                         <tr class="hct" id="{{ key }}">
                             <td class="sch_short"><a href="/{{ key }}">{{ value.0 }}</a></td>
                             <td class="sch_coach"><a href="/coach/{{ value.1 }}">{{ value.1 }}</a></td>
-                            <td id="distanceColumn">{{ value.2 }}</td>
-                            <td style="visibility: hidden;" class="hct_lat">{{ value.3 }}</td>
-                            <td style="visibility: hidden;" class="hct_lon">{{ value.4 }}</td>
+                            <td class="distanceColumn">{{ value.2 }}</td>
+                            <td style="display: none" class="hct_lat">{{ value.3 }}</td>
+                            <td style="display: none" class="hct_lon">{{ value.4 }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
