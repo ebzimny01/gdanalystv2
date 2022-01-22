@@ -7,6 +7,7 @@ from rq.job import Job
 from django_redis import get_redis_connection
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.utils.html import escape
 from django.views.decorators.http import require_GET
 from bs4 import BeautifulSoup
 from django import forms
@@ -119,7 +120,7 @@ def player(request, worldname, division):
     position = soup.find(id="ctl00_ctl00_ctl00_Main_Main_position")
     hometown = soup.find(id="ctl00_ctl00_ctl00_Main_Main_homeTown")
     if hometown.text == "":
-        return HttpResponse(f"Could not find recruit ID {playerid}.")
+        return HttpResponse(f"Could not find recruit ID = " + escape(playerid))
     else:
         #print(name.text)
         #print(position.text)
@@ -154,7 +155,7 @@ def town(request, worldname, division):
     hct = School.objects.exclude(coach="Sim AI").filter(world=worldname).filter(division=division)
     town_school_distance = get_distance_from(town_state, hct)
     if town_school_distance == 1:
-        return HttpResponse(f"Could not find a location named {town_state}.")
+        return HttpResponse(f"Could not find a location named " + escape(town_state))
     else:
         combined = {}
         for each in hct:
@@ -371,12 +372,12 @@ def display_game_results(request, jobid):
         job = Job.fetch(jobid, connection=conn)
         print(f"job ID {jobid} size of result = {total_size(job.result)}")
     except Exception as e:
-        return HttpResponse(f"{e}<br><br>Game Results are cached for 10 minutes. \
+        return HttpResponse(f"Job does not exist. <br><br>Game Results are cached for 10 minutes. \
                             Either the game results have expired or there is a \
                             problem with the requested job.")
     if job.result == 1:
         # This implies error with gameid
-        return HttpResponse(f"Error: Invalid GameID = {job.args}")
+        return HttpResponse(f"Error: Invalid GameID = " + escape(job.args[0]))
     else:
         return render(request, "gdanalyst/gameresult.html", {
             "result": job.result
