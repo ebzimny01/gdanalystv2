@@ -5,9 +5,9 @@ function calcRecruitingCost(miles){
     var headHome = 0;
     var campus = 0;
     if (miles < 180) {
-      asstScout = miles * 0.2 + 125;
+      asstScout = miles * 0.2041 + 125;
       headScout = miles * 0.3 + 225;
-      asstHome = miles * 0.2 + 400;
+      asstHome = miles * 0.2041 + 400;
       headHome = miles * 0.3 + 500;
       campus = miles * 0.125 + 800;
     } else if (miles >= 180 && miles < 360) {
