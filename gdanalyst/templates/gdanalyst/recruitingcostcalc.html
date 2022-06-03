@@ -1,0 +1,57 @@
+{% extends "gdanalyst/layout.html" %}
+{% load static %}
+{% block title %}
+
+{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block body %}
+
+<div class="container h-100 mt-5">
+    <div class="row h-100 justify-content-center align-items-center">
+        <div class="index_form">
+            <h1 class="title is-2 text-center">Recruiting Cost Calculator</h1>
+	<div class="mt-3 mb-3 text-center">
+  Estimate recruiting costs by entering the distance in miles from the recruit. 
+</div>
+<div class="input-group input-group-lg mx-auto" style="width: 200px;">
+    <input type="text" class="form-control" placeholder="0" aria-label="Username" aria-describedby="basic-addon1" id="miles" maxlength="4" autofocus="autofocus" pattern="^[\d]{1,4}" onkeypress="return (event.charCode !=8 &amp;&amp; event.charCode ==0 || (event.charCode >= 48 &amp;&amp; event.charCode <= 57))">
+    <div class="input-group-append">
+      <span class="input-group-text" id="basic-addon1">Miles</span>
+    </div>
+    </div>
+<div class="result mt-4">
+    <table id="costs" class="table table-borders">
+        <tr>
+            <th>Asst Scout</th>
+            <td id="asstscout">0</td>
+        </tr>
+        <tr>
+            <th>Head Scout</th>
+            <td id="headscout">0</td>
+        </tr>
+        <tr>
+            <th>Asst Home</th>
+            <td id="assthome">0</td>
+        </tr>
+        <tr>
+            <th>Head Home</th>
+            <td id="headhome">0</td>
+        </tr>
+        <tr>
+            <th>Campus</th>
+            <td id="campus">0</td>
+        </tr>
+      </table>
+	</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="{% static 'gdanalyst/formvalidation.js' %}"></script>
+<script src="{% static 'gdanalyst/recruitcostcalc.js' %}"></script>
+{% endblock %}
