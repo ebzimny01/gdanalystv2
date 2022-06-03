@@ -299,6 +299,9 @@ def distance(lat1, lat2, lon1, lon2):
 def gameid(request):
     return render(request, "gdanalyst/gameid.html")
 
+def recruitingCostCalc(request):
+    return render(request, "gdanalyst/recruitingcostcalc.html")
+
 def pbp(request):
     gid = request.GET['gameid']
     # Use with delay to use rqworker queue (production)
