@@ -125,7 +125,7 @@ RQ = {
 
 RQ_QUEUES = {
     'default': {
-        'URL': os.env.get('REDIS_URL'),
+        'URL': os.environ.get('REDIS_URL'),
             'SSL': True,
             'SSL_CERT_REQS': None,
     },
