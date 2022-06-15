@@ -108,7 +108,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'gd.wsgi.application'
 
 CACHES = {
-    'default': {
+    'redis-cache': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': os.environ.get('REDIS_URL'), 
         'TIMEOUT': 1200,
@@ -125,7 +125,7 @@ RQ = {
 
 RQ_QUEUES = {
     'default': {
-        'USE_REDIS_CACHE': 'default',
+        'USE_REDIS_CACHE': 'redis-cache',
     },
 }
 
