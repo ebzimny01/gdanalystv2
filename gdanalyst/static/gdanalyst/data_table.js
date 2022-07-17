@@ -34,7 +34,7 @@ var th_dict = {
 };
 
 $(document).ready( function () {
-    $('#gameresult').DataTable( {
+    var table = $('#gameresult').DataTable( {
         fixedHeader: true,
         paging: true,
         // "pageLength": 50,
@@ -84,8 +84,76 @@ $(document).ready( function () {
             },
             {
                 "width": "300px", "targets": 26,
-            }
+            },
+            { className: "game", "targets": [ 0 ] },
+            { className: "team", "targets": [ 1 ] },
+            { className: "quarter", "targets": [ 2 ] },
+            { className: "clock", "targets": [ 3 ] },
+            { className: "fieldposition", "targets": [ 4 ] },
+            { className: "down", "targets": [ 5 ] },
+            { className: "distance", "targets": [ 6 ] },
+            { className: "offenseform", "targets": [ 7 ] },
+            { className: "defenseform", "targets": [ 8 ] },
+            { className: "deftend", "targets": [ 9 ] },
+            { className: "blitz", "targets": [ 10 ] },
+            { className: "offtype", "targets": [ 11 ] },
+            { className: "rundirection", "targets": [ 12 ] },
+            { className: "pressure", "targets": [ 13 ] },
+            { className: "passdepth", "targets": [ 14 ] },
+            { className: "coverage", "targets": [ 15 ] },
+            { className: "covered", "targets": [ 16 ] },
+            { className: "passresult", "targets": [ 17 ] },
+            { className: "passdetail", "targets": [ 18 ] },
+            { className: "sack", "targets": [ 19 ] },
+            { className: "penalty", "targets": [ 20 ] },
+            { className: "turnover", "targets": [ 21 ] },
+            { className: "touchdown", "targets": [ 22 ] },
+            { className: "yardsgained", "targets": [ 23 ] },
+            { className: "opm", "targets": [ 24 ] },
+            { className: "dpm", "targets": [ 25 ] },
+            { className: "playbyplay", "targets": [ 26 ] },
+            { className: "penaltyyards", "targets": [ 27 ] },
+            { className: "progression", "targets": [ 28 ] },
+            { className: "progresiondetails", "targets": [ 29 ] },
+            { className: "home", "targets": [ 30 ] },
+            { className: "away", "targets": [ 31 ] },
         ],
+
+        // Add column tooltips
+        initComplete: function() {
+            $('.game').attr('title', "Game");
+            $('.team').attr('title', "Offensive team");
+            $('.quarter').attr('title', "Quarter");
+            $('.clock').attr('title', "Time on clock");
+            $('.fieldposition').attr('title', "Field position");
+            $('.down').attr('title', "Down");
+            $('.distance').attr('title', "Distance");
+            $('.offenseform').attr('title', "Offensive formation");
+            $('.defenseform').attr('title', "Defensive formation");
+            $('.deftend').attr('title', "Defensive tendency");
+            $('.blitz').attr('title', "Blitzing defensive player");
+            $('.offtype').attr('title', "Ps = Pass, Rn = Run");
+            $('.rundirection').attr('title', "Run Direction");
+            $('.pressure').attr('title', "Level of defensive pressure on QB");
+            $('.passdepth').attr('title', "Pass depth");
+            $('.coverage').attr('title', "Defensive position in pass coverage");
+            $('.covered').attr('title', "(C)overed, (W)ell (C)overed, (W)ide (O)pen");
+            $('.passresult').attr('title', "(C)omplete or (I)ncomplete pass");
+            $('.passdetail').attr('title', "Pass Overthrown, Out of Bounds, Knocked Down");
+            $('.sack').attr('title', "Sacked?");
+            $('.penalty').attr('title', "Penalty?");
+            $('.turnover').attr('title', "Turnover");
+            $('.touchdown').attr('title', "Touchdown");
+            $('.yardsgained').attr('title', "Yards gained");
+            $('.opm').attr('title', "Offensive play maker");
+            $('.dpm').attr('title', "Defensive play maker");
+            $('.playbyplay').attr('title', "Play by play");
+            $('.penaltyyards').attr('title', "Penalty yards");
+            $('.progression').attr('title', "QB progression reads");
+            $('.progressiondetails').attr('title', "QB progression detailed");
+            $('.home').attr('title', "Home team score");
+            $('.away').attr('title', "Away team score");
+      }
     });
     // $('#gameresult').DataTable().searchPanes.rebuildPane();
     console.log('DOM fully loaded and parsed');
@@ -95,4 +163,97 @@ $(document).ready( function () {
         console.log(x[i]);
         x[i].style.height = "125px";
     }
+
+    
+    // Create the chart with initial data
+    var containerOT = $('<div/>').insertBefore(table.table().container());
+ 
+    // create Offensive Type chart
+    var chartOT = Highcharts.chart(containerOT[0], {
+        chart: {
+            type: 'pie',
+        },
+        title: {
+            text: 'Offensive Type',
+        },
+        series: [
+            {
+                data: chartOTData(table),
+            },
+        ],
+    });
+    // create Pass Result chart
+    var containerPR = $('<div/>').insertBefore(table.table().container());
+    var chartPR = Highcharts.chart(containerPR[0], {
+        chart: {
+            type: 'pie',
+        },
+        title: {
+            text: 'Pass Result',
+        },
+        series: [
+            {
+                data: chartPRData(table),
+            },
+        ],
+    });
+ 
+    // On each draw, update the data in the chart
+    table.on('draw', function () {
+        chartOT.series[0].setData(chartOTData(table));
+        chartPR.series[0].setData(chartPRData(table));
+    });
+
 } );
+
+function chartOTData(table) {
+    var counts = {};
+ 
+    // Count the number of entries for each Offensive Type
+    table
+        .column(11, { search: 'applied' })
+        .data()
+        .each(function (val) {
+            if (val === '') {
+                // do nothing
+            } else if (counts[val]) {
+                counts[val] += 1;
+            } else {
+                counts[val] = 1;
+            }
+        });
+ 
+    // And map it to the format highcharts uses
+    return $.map(counts, function (val, key) {
+        return {
+            name: key,
+            y: val,
+        };
+    });
+}
+
+function chartPRData(table) {
+    var counts = {};
+ 
+    // Count the number of entries for each Pass Result
+    table
+        .column(19, { search: 'applied' })
+        .data()
+        .each(function (val) {
+            if (val === '') {
+                // do nothing
+            } else if (counts[val]) {
+                counts[val] += 1;
+            } else {
+                counts[val] = 1;
+            }
+        });
+ 
+    // And map it to the format highcharts uses
+    return $.map(counts, function (val, key) {
+        return {
+            name: key,
+            y: val,
+        };
+    });
+}
