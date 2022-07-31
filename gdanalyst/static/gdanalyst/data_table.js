@@ -164,49 +164,138 @@ $(document).ready( function () {
         x[i].style.height = "125px";
     }
 
+    var gaugeOptions = {
+        chart: {
+          type: 'solidgauge'
+        },
+      
+        title: null,
+      
+        pane: {
+          center: ['50%', '85%'],
+          size: '140%',
+          startAngle: -90,
+          endAngle: 90,
+          background: {
+            backgroundColor:
+              Highcharts.defaultOptions.legend.backgroundColor || '#EEE',
+            innerRadius: '60%',
+            outerRadius: '100%',
+            shape: 'arc'
+          }
+        },
+      
+        exporting: {
+          enabled: false
+        },
+      
+        tooltip: {
+          enabled: false
+        },
+      
+        // the value axis
+        yAxis: {
+          stops: [
+            [0.1, '#55BF3B'], // green
+            [0.5, '#DDDF0D'], // yellow
+            [0.9, '#DF5353'] // red
+          ],
+          lineWidth: 0,
+          tickWidth: 0,
+          minorTickInterval: null,
+          tickAmount: 2,
+          title: {
+            y: -70
+          },
+          labels: {
+            y: 16
+          }
+        },
+      
+        plotOptions: {
+          solidgauge: {
+            dataLabels: {
+              y: 5,
+              borderWidth: 0,
+              useHTML: true
+            }
+          }
+        }
+    };
+
+    // var containerRunPassGuage = $('<div/>').insertBefore(table.table().container());
+    var chartRunPass = Highcharts.chart(document.querySelector('#runpasscontainer'), Highcharts.merge(gaugeOptions, {
+        yAxis: {
+          min: 0,
+          max: 100,
+          title: {
+            text: 'Run %'
+          }
+        },
+      
+        credits: {
+          enabled: false
+        },
+      
+        series: [{
+          name: 'RunPass',
+          data: chartRunPassData(table),
+          dataLabels: {
+            format:
+              '<div style="text-align:center">' +
+              '<span style="font-size:40px">{y}</span><br/>' +
+              '<span style="font-size:20px;opacity:0.4">% Run Plays</span>' +
+              '</div>'
+          },
+          tooltip: {
+            valueSuffix: ' % Run Plays'
+          }
+        }]
+    }));
     
     // Create the chart with initial data
-    var containerOT = $('<div/>').insertBefore(table.table().container());
- 
-    // create Offensive Type chart
-    var chartOT = Highcharts.chart(containerOT[0], {
-        chart: {
-            type: 'pie',
+    // var containerPRGuage = $('<div/>').insertBefore(table.table().container());
+    var chartPR = Highcharts.chart(document.querySelector('#passresultcontainer'), Highcharts.merge(gaugeOptions, {
+        yAxis: {
+          min: 0,
+          max: 100,
+          title: {
+            text: 'Completion %'
+          }
         },
-        title: {
-            text: 'Offensive Type',
+      
+        credits: {
+          enabled: false
         },
-        series: [
-            {
-                data: chartOTData(table),
-            },
-        ],
-    });
-    // create Pass Result chart
-    var containerPR = $('<div/>').insertBefore(table.table().container());
-    var chartPR = Highcharts.chart(containerPR[0], {
-        chart: {
-            type: 'pie',
-        },
-        title: {
-            text: 'Pass Result',
-        },
-        series: [
-            {
-                data: chartPRData(table),
-            },
-        ],
-    });
+      
+        series: [{
+          name: 'PassResult',
+          data: chartPRData(table),
+          dataLabels: {
+            format:
+              '<div style="text-align:center">' +
+              '<span style="font-size:40px">{y}</span><br/>' +
+              '<span style="font-size:20px;opacity:0.4">% Completion</span>' +
+              '</div>'
+          },
+          tooltip: {
+            valueSuffix: ' % Completion'
+          }
+        }]
+    })); 
  
     // On each draw, update the data in the chart
     table.on('draw', function () {
-        chartOT.series[0].setData(chartOTData(table));
-        chartPR.series[0].setData(chartPRData(table));
+        var point = chartRunPassData(table);
+        console.log('chartRunPassData = ' + point);
+        chartRunPass.series[0].points[0].update(point);
+        chartPR.series[0].points[0].update(chartPRData(table));
     });
 
 } );
 
-function chartOTData(table) {
+
+function chartRunPassData(table) {
     var counts = {};
  
     // Count the number of entries for each Offensive Type
@@ -224,13 +313,16 @@ function chartOTData(table) {
         });
  
     // And map it to the format highcharts uses
-    return $.map(counts, function (val, key) {
-        return {
-            name: key,
-            y: val,
-        };
-    });
+    if ('Rn' in counts) {
+        var runplayspercentage = [Math.round(100 * counts['Rn'] / (counts['Ps'] + counts['Rn']))];
+    } else {
+        var runplayspercentage = [0];
+    }
+    
+    console.log('runplaypercentage = ' + runplayspercentage[0]);
+    return runplayspercentage;    
 }
+
 
 function chartPRData(table) {
     var counts = {};
@@ -250,10 +342,12 @@ function chartPRData(table) {
         });
  
     // And map it to the format highcharts uses
-    return $.map(counts, function (val, key) {
-        return {
-            name: key,
-            y: val,
-        };
-    });
+    if ('C' in counts) {
+        var passcompletionpercentage = [Math.round(100 * counts['C'] / (counts['C'] + counts['I']))];
+    } else {
+        var passcompletionpercentage = [0];
+    }
+    
+    console.log('passcompletionpercentage = ' + passcompletionpercentage[0]);
+    return passcompletionpercentage;
 }

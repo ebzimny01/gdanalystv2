@@ -17,6 +17,21 @@
 {% endblock %}
 
 {% block body %}
+    <p>
+        <button class="btn btn-primary m-1" type="button" data-toggle="collapse" data-target="#collapseRow" aria-expanded="false" aria-controls="collapseRow">
+            Show/Hide Charts
+        </button>
+    </p>
+    <div class="chartcontainer">
+        <div class="row collapse show" id="collapseRow" style="height: 200px;">
+            <div class="col-sm" id="runpasscontainer">
+                One of two columns
+            </div>
+            <div class="col-sm" id="passresultcontainer">
+                One of two columns
+            </div>
+        </div>
+    </div>
     <table id="gameresult" class="cell-border order-column hover display compact">
         <thead>
             <tr>
