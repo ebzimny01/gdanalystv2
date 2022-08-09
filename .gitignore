@@ -11,3 +11,5 @@ staticfiles/empty.*.txt
 gd/sec.py
 gd/sec1.py
 appendonly.aof
+.vscode/settings.json
+.vscode/extensions.json

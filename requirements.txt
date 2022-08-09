@@ -27,7 +27,8 @@ nltk==3.6.7
 odict==1.7.0
 plumber==1.6
 progress==1.5
-psycopg2==2.9.1
+#psycopg2==2.9.1
+psycopg2-binary==2.9.3
 pytz==2021.1
 redis==3.5.3
 regex==2021.8.3

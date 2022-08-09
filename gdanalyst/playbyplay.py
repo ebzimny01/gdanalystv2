@@ -399,6 +399,7 @@ def parse_pbp(p):
         elif "takes a knee" in only_sent_text:
             ot = "Rn"
             rd = "Knee"
+            yg = -1
             opm_find = re.search(r"([a-zA-z'\- ]*) takes a knee", only_sent_text)
             opm = opm_find.group(1)
             opm = find_off(opm, off_players)
@@ -686,6 +687,7 @@ def parse_pbp(p):
                     pass_result = "C"
             if "is sacked by " in t:
                 sack = "Y"
+                rd = "Sck"
                 pressure = 4
                 # regex g1 = last of sacked QB, g2 = last name of def player made sack, g3 = yards lost on sack
                 sacked_find_opm_dpm = re.search(r"n?([\w'-]+) is sacked by ([\w'-]+) for a loss of (-?\d{1,2}) yards", t)
