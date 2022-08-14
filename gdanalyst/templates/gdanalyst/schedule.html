@@ -23,12 +23,10 @@
     </div>
     <hr>
     <div class="container-fluid">
-        <div class="row">
-            <a href="/{{ wid.wis_id }}/schedule/all" class="btn btn-primary btn-lg m-2" role="button" aria-pressed="true" target="_blank">Analyze Results for All Opponents</a>
-            <a href="/{{ wid.wis_id }}/schedule/humans" class="btn btn-primary btn-lg m-2" role="button" aria-pressed="true" target="_blank">Analyze Results for Human Opponents</a>
-        </div>
-        <div class="row">
-            <div class="col-6 shadow p-3 mb-5 bg-white rounded">
+        <!--<div class="row">
+            <a href="/{{ wid.wis_id }}/schedule/all" class="btn btn-primary btn-lg m-2" id="analyzebtn" role="button" aria-pressed="true" target="_blank">Analyze Results for All Opponents</a>
+        </div> -->
+            <div class="col shadow p-3 mb-5 bg-white rounded">
                 <table class="table table-sm table-hover">
                     <thead>
                         <tr>
@@ -36,7 +34,22 @@
                             <th scope="col">Date</th>
                             <th scope="col">Opponent</th>
                             <th scope="col">Coach</th>
-                            <th scope="col">Analyze Box Score</th>
+                            <th scope="col">Box Score</th>
+                            <th scope="col">
+                                <button type="button" class="mx-auto mt-1 mb-1 btn btn-primary btn-sm" id="analyzebtn" disabled>Analyze</button>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheckAll">
+                                    <label class="form-check-label" for="flexCheckAll">
+                                      All
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheckHumans">
+                                    <label class="form-check-label" for="flexCheckHumans">
+                                      Humans
+                                    </label>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -50,14 +63,23 @@
                             {% else %}
                                 <td>{{ row.4 }}</td>
                             {% endif %}
-                            <td><a class="hct" id="{{ row.6 }}" href="/pbp?gameid={{ row.6 }}" target="_blank">{{row.7}} {{ row.5 }}</a></td>
+                            <td><a class="hct" id="{{ row.6 }}" href="https://www.whatifsports.com/gd/GameResults/BoxScore.aspx?gid={{ row.6 }}" target="_blank">{{row.7}} {{ row.5 }}</a></td>
+                            <td>
+                                {% if row.6 != "#" %}
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="switch" value="{{ row.4 }}" id="{{ row.6 }}">
+                                        <label class="form-check-label" for="{{ row.6 }}">Analyze</label>
+                                    </div>
+                                {% endif %}
+                            </td> 
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <div class="col-6"></div>
-        </div>
     </div>
     
+{% endblock %}
+{% block script %}
+    <script src="{% static 'gdanalyst/schedule_switchboxes.js' %}"></script>
 {% endblock %}

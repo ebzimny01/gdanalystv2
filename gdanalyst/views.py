@@ -328,6 +328,7 @@ def teamschedule(request, wisid):
 
 
 def get_all_results(request, wisid):
+    gids = request.GET.getlist('gameids')
     schedule_table = get_schedule_table(wisid)
     results_job = ""
     if "all" in request.path:
@@ -335,8 +336,12 @@ def get_all_results(request, wisid):
         for each in schedule_table:
             if each[6] != "#":
                 tmp.append(each[6]) 
+        if (all(i in tmp for i in gids)):
+            print("The gameids that were passed are valid.")
+        else:
+            print("The gameids that were passed have produced an error.")
         # Use with delay to use rqworker queue (production)
-        results_job =  get_pbp.delay(tmp)
+        results_job =  get_pbp.delay(gids)
         # Use without delay to bypass rqworker queue - used for debugging
         # results_job =  get_pbp(tmp)
     elif "humans" in request.path:
