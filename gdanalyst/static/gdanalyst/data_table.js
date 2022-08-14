@@ -581,7 +581,7 @@ function chartRunPassData(table) {
  
     // And map it to the format highcharts uses
     if ('Rn' in counts) {
-        var runplayspercentage = [Math.round(100 * counts['Rn'] / (counts['Ps'] + counts['Rn']))];
+        var runplayspercentage = [Math.round(100 * counts['Rn'] / ((counts['Ps'] || 0) + counts['Rn']))];
     } else {
         var runplayspercentage = [0];
     }
@@ -610,7 +610,7 @@ function chartPRData(table) {
  
     // And map it to the format highcharts uses
     if ('C' in counts) {
-        var passcompletionpercentage = [Math.round(100 * counts['C'] / (counts['C'] + counts['I']))];
+        var passcompletionpercentage = [Math.round(100 * counts['C'] / (counts['C'] + (counts['I'] || 0)))];
     } else {
         var passcompletionpercentage = [0];
     }
@@ -637,7 +637,7 @@ function chartBlitzData(table) {
  
     // And map it to the format highcharts uses
     if ('Yes' in counts) {
-        var blitzpercentage = [Math.round(100 * counts['Yes'] / (counts['Yes'] + counts['No']))];
+        var blitzpercentage = [Math.round(100 * counts['Yes'] / (counts['Yes'] + (counts['No'] || 0)))];
     } else {
         var blitzpercentage = [0];
     }

@@ -5,7 +5,8 @@
 
         <title>GD Analyst</title>
         <script defer data-domain="gdanalyst.herokuapp.com" src="https://plausible.io/js/plausible.js"></script>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <!--  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
             integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
             crossorigin=""/>
@@ -33,7 +34,7 @@
                 <a class="nav-item nav-link" href="{% url 'recruitingcostcalc' %}">Recruiting Cost Calculator</a>
             </div>
             <div class="navbar-nav">
-                <a class="nav-item nav-link" href="{% url 'gameid' %}">Single Game Analysis</a>
+                <a class="nav-item nav-link mx-2" href="{% url 'gameid' %}">Single Game Analysis</a>
             </div>        
         </nav>
         {% block body %}
