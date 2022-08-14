@@ -11,15 +11,15 @@
 {% block body %}
     <div>
         <div class="h1 p-3 mb-1 bg-dark text-white" id="schoolname">{{ wid.school_short }}</div>
-        <div class="h5 pl-3 bg-transparent text-dark">{{ wid.location.name }}</div>
+        <div class="h5 pl-3 mx-4 bg-transparent text-dark">{{ wid.location.name }}</div>
         <div hidden id="latitude">{{ wid.location.latitude }}</div>
         <div hidden id="longitude">{{ wid.location.longitude }}</div>
-        <div class="pl-3 bg-transparent text-dark">World: {{ wid.world }}</div>
+        <div class="pl-3 mx-4 bg-transparent text-dark">World: {{ wid.world }}</div>
         <div hidden id="wisid">{{ wid.wis_id }}</div>
-        <div class="pl-3 bg-transparent text-dark">Coach: <a href="/coach/{{ coach }}">{{ coach }}</a></div>
-        <div class="pl-3 bg-transparent text-dark">Division: {{ wid.division }}</div>
-        <div class="pl-3 bg-transparent text-dark">Conference: {{ wid.conference }}</div>
-        <div class="pl-3 bg-transparent text-dark"><a href="/{{ wid.wis_id }}">School Map</a></div>
+        <div class="pl-3 mx-4 bg-transparent text-dark">Coach: <a href="/coach/{{ coach }}">{{ coach }}</a></div>
+        <div class="pl-3 mx-4 bg-transparent text-dark">Division: {{ wid.division }}</div>
+        <div class="pl-3 mx-4 bg-transparent text-dark">Conference: {{ wid.conference }}</div>
+        <div class="pl-3 mx-4 bg-transparent text-dark"><a href="/{{ wid.wis_id }}">School Map</a></div>
     </div>
     <hr>
     <div class="container-fluid">
