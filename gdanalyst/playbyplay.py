@@ -113,6 +113,15 @@ def get_pbp(gid_list):
                     #print(t_row)
                     #append entire row of data to data_table
                     if len(t_row) == 32:
+                        # t_row[30] is the home team's score
+                        # t_row[31] is the away team's score
+                        score_margin = {
+                            team_home_short: int(t_row[30]) - int(t_row[31]),
+                            team_away_short: int(t_row[31]) - int(t_row[30])
+                        }
+                        print(score_margin)
+                        print(offense)
+                        t_row.append(score_margin[offense])
                         table_data.append(t_row)
             quarter += 1
         all_table_data += table_data
