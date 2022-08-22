@@ -46,7 +46,10 @@ $(document).ready( function () {
         colReorder: {
             order: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 28, 29, 17, 18, 19, 20, 21, 22, 23, 27, 24, 25, 26, 30, 31, 32]
         },
-        dom: 'PBfrtip',
+        searchPanes:{
+          cascadePanes: true,
+        },
+        dom: '<"#collapseSearch.searchpanes m-1 row collapse show"QP><"m-1"Bfiprtip>',
         lengthMenu: [
             [ 50, 100, -1 ],
             [ '50 rows', '100 rows', 'Show all' ]
@@ -62,26 +65,21 @@ $(document).ready( function () {
             },
             'csv', 'excel',
         ],
-        searchPanes:{
-            columns:[0, 1, 2, 5, 6, 7, 8, 9, 11],
-            cascadePanes: true,
-            layout: 'columns-9',
-        },
         columnDefs:[
             {
                 searchPanes:{
-                    show: true,
+                    show: true
                 },
-                targets: [0, 1, 2, 5, 6, 7, 8, 9, 11],
+                targets: [0,1,2,5,7,8,9,10,11]
             },
             {
                 searchPanes:{
                     show: false,
                 },
-                targets: [3, 4, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32],
+                targets: [3,4,6,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],
             },
             {
-                "visible": false, "targets": [26, 29, 30, 31]
+                "visible": false, "targets": [13, 18, 26, 27, 29, 30, 31]
             },
             {
                 "width": "300px", "targets": 26,
@@ -562,6 +560,32 @@ $(document).ready( function () {
             }
         }
     });
+
+    // switchboxes to show/hide the charts div and the search filters div
+    const switchCharts = document.querySelector('#flexCheckCharts');
+    const switchSearchFilters = document.querySelector('#flexCheckSearchFilters');
+    const divCharts = document.querySelector('#collapseRow');
+    const divSearchFilters = document.querySelector('#collapseSearch');
+
+    switchCharts.addEventListener('change', () => {
+      if (switchCharts.checked) {
+        // If Charts is checked, show the charts div
+        divCharts.style.display = "flex";
+      } else {
+        // If Charts is unchecked, do not show the charts div
+        divCharts.style.display = "none";
+      }
+    }); 
+
+    switchSearchFilters.addEventListener('change', () => {
+      if (switchSearchFilters.checked) {
+        // If Charts is checked, show the charts div
+        divSearchFilters.style.display = "flex";
+      } else {
+        // If Charts is unchecked, do not show the charts div
+        divSearchFilters.style.display = "none";
+      }
+    }); 
 });
 
 
