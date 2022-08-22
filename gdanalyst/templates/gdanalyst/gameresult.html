@@ -18,12 +18,18 @@
 
 {% block body %}
     <p>
-        <button class="btn btn-primary m-1" type="button" data-toggle="collapse" data-target="#collapseRow" aria-expanded="false" aria-controls="collapseRow">
-            Show/Hide Charts
-        </button>
-        <button class="btn btn-primary m-1" type="button" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="true" aria-controls="collapseSearch">
-            Show/Hide Search Filters
-        </button>
+        <div class="form-check form-switch">
+            <input class="m-1 form-check-input checked" type="checkbox" value="" id="flexCheckCharts" checked>
+            <label class="form-check-label" for="flexCheckCharts">
+              Show Charts
+            </label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="m-1 form-check-input checked" type="checkbox" value="" id="flexCheckSearchFilters" checked>
+            <label class="form-check-label" for="flexCheckSearchFilters">
+              Show Search Filters
+            </label>
+        </div>
     </p>
     <div class="chartcontainer">
         <div class="row collapse show" id="collapseRow" style="height: 200px;">
