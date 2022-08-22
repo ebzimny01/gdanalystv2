@@ -49,7 +49,7 @@ $(document).ready( function () {
         searchPanes:{
           cascadePanes: true,
         },
-        dom: 'QPBfrtip',
+        dom: '<"#collapseSearch.searchpanes row collapse show"QP>Bfiprtip',
         lengthMenu: [
             [ 50, 100, -1 ],
             [ '50 rows', '100 rows', 'Show all' ]
