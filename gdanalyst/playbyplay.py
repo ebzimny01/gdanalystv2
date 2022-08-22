@@ -89,13 +89,18 @@ def get_pbp(gid_list):
                     for td in tr.find_all("td"):
                         # first 'td' appended should be 'clock'                 # column 3
                         if td['class'][0] == "pbpClock":
-                            # second 'td' appended should be 'ball on'  
                             clock_str = td.text
                             try:
                                 clock_obj = datetime.datetime.strptime(clock_str, '%M:%S')
                             except:
                                 clock_obj = datetime.datetime.strptime("0:00", '%M:%S')
-                            t_row.append(clock_obj.strftime('%M:%S'))           # column 4
+                            t_row.append(clock_obj.strftime('%M:%S'))
+                        elif td['class'][0] == "pbpBallOn" and td.text[0] != "\xa0":
+                            # second 'td' appended should be 'ball on'          # column 4 (field position)
+                            if "Own" in td.text:
+                                t_row.append(int(td.text.replace('Own ', '')))
+                            else:
+                                t_row.append(100 - int(td.text))
                         elif td['class'][0] == "pbpDownDistance" and td.text[0] != "\xa0":
                             t_row.append(int(td.text[0]))                       # column 5 (down)
                             x = len(td.text)
