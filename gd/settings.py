@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import django_heroku
+import dj_database_url
 import os
 
 # This section only runs if running on local machine
@@ -196,6 +197,11 @@ DATABASES = {
     }
 }
 '''
+DATABASES = {
+    'default': dj_database_url.config()
+}
+DATABASES['default']['OPTIONS'] = {'ssl': {'ca': os.path.join(os.path.dirname(__file__), 'config', 'amazon-rds-ca-cert.pem'}}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
