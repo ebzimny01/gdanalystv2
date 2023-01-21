@@ -200,7 +200,7 @@ DATABASES = {
 DATABASES = {
     'default': dj_database_url.config()
 }
-DATABASES['default']['OPTIONS'] = {'ssl': {'ca': os.path.join(os.path.dirname(__file__), 'config', 'amazon-rds-ca-cert.pem'}}
+DATABASES['default']['OPTIONS'] = {'ssl': {'ca': os.path.join(os.path.dirname(__file__), 'config', 'amazon-rds-ca-cert.pem')}}
 
 
 # Password validation
