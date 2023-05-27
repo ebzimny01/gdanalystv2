@@ -11,14 +11,16 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import django_heroku
 import dj_database_url
+
+# https://github.com/joke2k/django-environ
+import environ
+
 import os
 
-# This section only runs if running on local machine
-if os.getenv("HOME") == "/home/edz":
-    try:
-        from gd.sec1 import *
-    except:
-        print("Missing gd.sec1 file is expected on Heroku Dev and Production environments as this file is not needed.")
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
 
 import logging
 from pathlib import Path
@@ -50,13 +52,24 @@ sentry_sdk.init(
 # This line is suggested by Heroku instead of line above
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+WSGI_APPLICATION = 'gd.wsgi.app'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+
+# False if not in os.environ because of casting above
+DEBUG = env('DEBUG')
 
 DEBUG_PROPAGATE_EXCEPTIONS = True
+
+# Raises Django's ImproperlyConfigured
+# exception if SECRET_KEY not in os.environ
+SECRET_KEY = env('SECRET_KEY')
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
@@ -112,7 +125,7 @@ WSGI_APPLICATION = 'gd.wsgi.application'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.environ.get('REDIS_URL'), 
+        'LOCATION': env.cache_url('REDIS_URL'), 
         'TIMEOUT': 1200,
         'OPTIONS': { 
             'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
@@ -127,7 +140,7 @@ RQ = {
 
 RQ_QUEUES = {
     'default': {
-        'URL': os.environ.get('REDIS_URL'),
+        'URL': env.cache_url('REDIS_URL'),
             'SSL': True,
             'SSL_CERT_REQS': None,
     },
@@ -190,14 +203,27 @@ LOGGING = {
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-'''
 DATABASES = {
+    # read os.environ['DATABASE_URL'] and raises
+    # ImproperlyConfigured exception if not found
+    #
+    # The db() method is an alias for db_url().
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': env('PGENGINE'),
+        'URL': env('POSTGRES_URL'),
+        'NAME': env('PGNAME'),
+        'USER': env('PGUSER'),
+        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'HOST': env('PGHOST'),
+        'PORT': env('PGPORT'),
     }
+
+    # read os.environ['SQLITE_URL']
+    'extra': env.db_url(
+        'SQLITE_URL',
+        default='sqlite:////tmp/my-tmp-sqlite.db'
+    )
 }
-'''
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
