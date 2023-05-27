@@ -207,7 +207,7 @@ DATABASES = {
     # The db() method is an alias for db_url().
     'default': {
         'ENGINE': env('PGENGINE'),
-        'URL': env('POSTGRES_URL'),
+        'URL': env('DATABASE_URL'),
         'NAME': env('PGNAME'),
         'USER': env('PGUSER'),
         'PASSWORD': env('PGPASSWORD'),
