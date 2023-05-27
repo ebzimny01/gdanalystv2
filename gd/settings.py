@@ -215,12 +215,6 @@ DATABASES = {
         'HOST': env('PGHOST'),
         'PORT': env('PGPORT'),
     }
-
-    # read os.environ['SQLITE_URL']
-    'extra': env.db_url(
-        'SQLITE_URL',
-        default='sqlite:////tmp/my-tmp-sqlite.db'
-    )
 }
 
 # Password validation
