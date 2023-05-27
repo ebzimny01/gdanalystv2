@@ -8,6 +8,7 @@ staticfiles/admin/*
 staticfiles/gdanalyst/*
 staticfiles/*.py
 staticfiles/empty.*.txt
+staticfiles_build/*
 gd/sec.py
 gd/sec1.py
 appendonly.aof

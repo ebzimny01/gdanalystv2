@@ -51,7 +51,6 @@ sentry_sdk.init(
 # BASE_DIR = Path(__file__).resolve().parent.parent
 # This line is suggested by Heroku instead of line above
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -123,7 +122,7 @@ TEMPLATES = [
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': env.cache_url('REDIS_URL'), 
+        'LOCATION': env('REDIS_URL'), 
         'TIMEOUT': 1200,
         'OPTIONS': { 
             'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
@@ -138,7 +137,7 @@ RQ = {
 
 RQ_QUEUES = {
     'default': {
-        'URL': env.cache_url('REDIS_URL'),
+        'URL': env('REDIS_URL'),
             'SSL': True,
             'SSL_CERT_REQS': None,
     },
@@ -209,6 +208,7 @@ DATABASES = {
     'default': {
         'ENGINE': env('PGENGINE'),
         'URL': env('POSTGRES_URL'),
+        'NAME': env('PGNAME'),
         'USER': env('PGUSER'),
         'PASSWORD': env('PGPASSWORD'),
         'HOST': env('PGHOST'),
@@ -266,3 +266,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Activate Django-Heroku.
 # django_heroku.settings(locals())
+
+'''
+print("Printing Environment Variables . . . ")
+print(f"BASE_DIR = ${BASE_DIR}")
+for k, v in os.environ.items():
+    print(f'{k}={v}')
+'''
