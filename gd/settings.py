@@ -210,7 +210,7 @@ DATABASES = {
         'ENGINE': env('PGENGINE'),
         'URL': env('POSTGRES_URL'),
         'USER': env('PGUSER'),
-        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'PASSWORD': env('PGPASSWORD'),
         'HOST': env('PGHOST'),
         'PORT': env('PGPORT'),
     }
