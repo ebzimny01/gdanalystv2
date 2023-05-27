@@ -209,7 +209,6 @@ DATABASES = {
     'default': {
         'ENGINE': env('PGENGINE'),
         'URL': env('POSTGRES_URL'),
-        'NAME': env('PGNAME'),
         'USER': env('PGUSER'),
         'PASSWORD': env('POSTGRES_PASSWORD'),
         'HOST': env('PGHOST'),
