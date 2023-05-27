@@ -120,8 +120,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'gd.wsgi.application'
-
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
