@@ -213,6 +213,9 @@ DATABASES = {
         'PASSWORD': env('PGPASSWORD'),
         'HOST': env('PGHOST'),
         'PORT': env('PGPORT'),
+        'CONN_MAX_AGE': 600,
+        'CONN_HEALTH_CHECK': True,
+        'SSL_REQUIRE': True,
     }
 }
 
