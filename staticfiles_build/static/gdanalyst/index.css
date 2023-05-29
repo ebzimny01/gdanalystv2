@@ -1,0 +1,40 @@
+html, body {
+    height: 100%;
+    min-width: 240px;
+}
+
+.bg-color {
+  width: 100%;
+  height: auto;
+  min-height: 100% !important;
+  background: #4e4376;  
+  background: -webkit-linear-gradient(to bottom, #2b5876, #4e4376);  
+  background: linear-gradient(to bottom, #2b5876, #4e4376);
+}
+
+body::after {
+  content: "";
+  opacity: 0.5;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
+  background-image: url('/static/gdanalyst/american-3698927.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover; 
+}
+
+.index_form {
+    padding: 6px 8px;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+
+.index_form form {
+    width: 200px;
+}
