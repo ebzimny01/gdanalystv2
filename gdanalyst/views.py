@@ -436,7 +436,7 @@ def get_schedule_table(wisid):
                 # Result ID used to provide link to analyze box score
                 if result != "":
                     result_href = res['href']
-                    result_href_re = re.search(r'OpenBoxscore\((\d{7})', result_href)
+                    result_href_re = re.search(r'OpenBoxscore\((\d{7,8})', result_href)
                     if result_href_re is not None:
                         result_id = result_href_re.group(1)
                     else:
