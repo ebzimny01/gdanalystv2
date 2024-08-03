@@ -642,7 +642,9 @@ $(document).ready( function () {
     const switchCharts = document.querySelector('#flexCheckCharts');
     const switchSearchFilters = document.querySelector('#flexCheckSearchFilters');
     const divCharts = document.querySelector('#collapseRow');
-    const divSearchFilters = document.querySelector('#collapseSearch');
+    //const divSearchFilters = document.querySelector('#collapseSearch');
+    const divSearchBuilderFilter = document.getElementsByClassName('dtsb-searchBuilder')[0];
+    const divSearchPanelsFilter = document.getElementsByClassName('dtsp-panesContainer')[0]; 
 
     switchCharts.addEventListener('change', () => {
       if (switchCharts.checked) {
@@ -657,10 +659,12 @@ $(document).ready( function () {
     switchSearchFilters.addEventListener('change', () => {
       if (switchSearchFilters.checked) {
         // If Charts is checked, show the charts div
-        divSearchFilters.style.display = "flex";
+        divSearchBuilderFilter.classList.remove('dtsp-hidden');
+        divSearchPanelsFilter.classList.remove('dtsp-hidden');
       } else {
         // If Charts is unchecked, do not show the charts div
-        divSearchFilters.style.display = "none";
+        divSearchBuilderFilter.classList.add('dtsp-hidden');
+        divSearchPanelsFilter.classList.add('dtsp-hidden');
       }
     }); 
 });
