@@ -12,17 +12,54 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import django_heroku
 import dj_database_url
 import os
-
-# This section only runs if running on local machine
-if os.getenv("HOME") == "/home/edz":
-    try:
-        from gd.sec1 import *
-    except:
-        print("Missing gd.sec1 file is expected on Heroku Dev and Production environments as this file is not needed.")
-
+import environ
 import logging
 from pathlib import Path
 import sentry_sdk
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# This line is suggested by Heroku instead of line above
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Take environment variables from .env file
+env_file = os.path.join(BASE_DIR, '.env')
+environ.Env.read_env(env_file)
+
+# SECURITY WARNING: don't run with debug turned on in production!   
+# False if not in os.environ because of casting above
+DEBUG = env('DEBUG')
+
+# This section only runs if running on local machine
+if os.getenv("HOME") == "/home/edz":
+    print("Running on local machine")
+    SECRET_KEY = env('SECRET_KEY')
+    # Overwrite existing environment variables with those from the .env file
+    with open(env_file) as f:
+        for line in f:
+            if line.strip() and not line.startswith('#'):
+                key, value = line.strip().split('=', 1)
+                os.environ[key] = value
+    if DEBUG:
+        print("DEBUG is True")
+        print(f"BASE_DIR: {BASE_DIR}")
+        print(f"SECRET_KEY: {env('SECRET_KEY')}")
+        print(f"REDIS_URL: {os.environ.get('REDIS_URL')}")
+        print(f"DATABASE_URL: {os.environ.get('DATABASE_URL')}")
+
+#Postgresql
+DATABASES = {
+    # read os.environ['DATABASE_URL'] and raises
+    # ImproperlyConfigured exception if not found
+    #
+    # The db() method is an alias for db_url().
+    'default': env.db(),
+}
 
 """
 # Sentry integration
@@ -45,16 +82,11 @@ sentry_sdk.init(
 )
 """
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
-# This line is suggested by Heroku instead of line above
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
