@@ -14,3 +14,4 @@ appendonly.aof
 .vscode/settings.json
 .vscode/extensions.json
 .env
+.venv*
