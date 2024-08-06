@@ -356,11 +356,17 @@ def get_all_results(request, wisid):
     base_url = reverse("loading_game_results")
     query_string = urlencode({'jobid': results_job.id})
     url = "{}?{}".format(base_url, query_string)
+    # Modify the session to include the jobid
+    request.session['jobid'] = results_job.id
+    # print the session
+    print(f"get_all_results -- session items: {request.session.items()}")
+    # Redirect to the loading page
     return redirect(url)
 
 
 def loading_game_results(request):
     job_id = request.GET.get('jobid')
+    print(f"loading_game_results -- session items: {request.session.items()}")
     return render(request, "gdanalyst/gameresultsloading.html", {
         "job_id": job_id
     })
@@ -374,7 +380,9 @@ def jobstatus(request, jobid):
     return HttpResponse(job.get_status())
 
 
-def display_game_results(request, jobid):
+def display_game_results(request):
+    print(f"display_game_results -- session items: {request.session.items()}")
+    jobid = request.session['jobid']
     conn = django_rq.get_connection('default')
     try:
         job = Job.fetch(jobid, connection=conn)
