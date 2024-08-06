@@ -148,7 +148,10 @@ CACHES = {
         'TIMEOUT': 1200,
         'OPTIONS': { 
             'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
-            'MAX_ENTRIES': 5000, 
+            'MAX_ENTRIES': 5000,
+            "CONNECTION_POOL_KWARGS": {
+                "ssl_cert_reqs": None  # Disable SSL verification
+            }, 
         }, 
     },
 }
