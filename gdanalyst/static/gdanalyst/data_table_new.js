@@ -58,7 +58,17 @@ $(document).ready( function () {
                     return th_dict[title];
                 },
               },
-              'csv', 'excel'
+              /*
+              'createState',
+                {
+                    extend: 'savedStates',
+                    config: {
+                        creationModal: true
+                    }
+                },
+                */
+              'csv',
+              'excel'
             ]
           },
           top2Start: {
@@ -76,7 +86,8 @@ $(document).ready( function () {
         order: [[ 2, 'asc' ], [ 3, 'desc' ]],
         orderMulti: true,
         colReorder: {
-          order: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 28, 29, 17, 18, 19, 20, 21, 22, 23, 27, 24, 25, 26, 30, 31, 32]
+          order: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 28, 29, 17, 18, 19, 20, 21, 22, 23, 27, 24, 25, 26, 30, 31, 32],
+          enable: false
         },
         columnDefs:[
           {
@@ -666,7 +677,7 @@ $(document).ready( function () {
         divSearchBuilderFilter.classList.add('dtsp-hidden');
         divSearchPanelsFilter.classList.add('dtsp-hidden');
       }
-    }); 
+    });
 });
 
 
