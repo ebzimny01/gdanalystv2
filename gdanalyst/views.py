@@ -15,6 +15,18 @@ from math import radians, cos, sin, asin, sqrt
 from .models import School, City
 from .playbyplay import *
 from .utils import total_size
+import os
+
+rq_queue:str = (os.environ.get('ENVIRONMENT', 'default'))
+print(f"ENVIRONMENT = {os.environ.get('ENVIRONMENT')}")  
+print (f"rq_queue = {rq_queue}")
+queue_name = 'default'
+if rq_queue == 'dev':
+    queue_name = 'dev'
+elif rq_queue == 'local':
+    queue_name = 'local'
+else:
+    queue_name = 'default'
 
 # Create your views here.
 
@@ -369,13 +381,13 @@ def loading_game_results(request):
 def jobstatus(request, jobid):
     # This is using native redis-cli
     # conn = get_redis_connection("default")
-    conn = django_rq.get_connection('default')
+    conn = django_rq.get_connection(queue_name)
     job = Job.fetch(jobid, connection=conn)
     return HttpResponse(job.get_status())
 
 
 def display_game_results(request, jobid):
-    conn = django_rq.get_connection('default')
+    conn = django_rq.get_connection(queue_name)
     try:
         job = Job.fetch(jobid, connection=conn)
         print(f"job ID {jobid} size of result = {total_size(job.result)}")

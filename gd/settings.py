@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import django_heroku
 import dj_database_url
 import os
+from urllib.parse import urlparse
 
 # This section only runs if running on local machine
 if os.getenv("HOME") == "/home/edz":
@@ -109,15 +110,48 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gd.wsgi.application'
 
+# Cache configurations
+redis_url = urlparse(os.environ.get('REDIS_URL', 'redis://localhost:6959'))
+print(redis_url.hostname)
+print(redis_url.port)
+print(redis_url.password)
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.environ.get('REDIS_URL'), 
-        'TIMEOUT': 1200,
-        'OPTIONS': { 
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
-            'MAX_ENTRIES': 5000, 
-        }, 
+        'LOCATION': 'rediss://%s:%s/0' % (redis_url.hostname, redis_url.port),  # Production Redis database 0
+        'OPTIONS': {
+            'PASSWORD': redis_url.password,
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000,
+            "CONNECTION_POOL_KWARGS": {
+                "ssl_cert_reqs": None  # Disable SSL verification
+            },
+        },
+    },
+    'local': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'rediss://%s:%s/1' % (redis_url.hostname, redis_url.port),  # Local development Redis database 1
+        'OPTIONS': {
+            'PASSWORD': redis_url.password,
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000,
+            "CONNECTION_POOL_KWARGS": {
+                "ssl_cert_reqs": None  # Disable SSL verification
+            },
+        },
+    },
+    'dev': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'rediss://%s:%s/2' % (redis_url.hostname, redis_url.port),  # CICD pipeline Redis database 2
+        'OPTIONS': {
+            'PASSWORD': redis_url.password,
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000,
+            "CONNECTION_POOL_KWARGS": {
+                "ssl_cert_reqs": None  # Disable SSL verification
+            },
+        },
     },
 }
 
@@ -125,11 +159,28 @@ RQ = {
     'DEFAULT_RESULT_TTL': 600,
 }
 
+# Queue configurations
 RQ_QUEUES = {
     'default': {
-        'URL': os.environ.get('REDIS_URL'),
-            'SSL': True,
-            'SSL_CERT_REQS': None,
+        'URL': 'redis://%s:%s/0' % (redis_url.hostname, redis_url.port),  # Production Redis database 0
+        'DEFAULT_TIMEOUT': 500,
+        'CONNECTION_POOL_KWARGS': {
+            'ssl_cert_reqs': None  # Disable SSL verification
+        },
+    },
+    'local': {
+        'URL': 'redis://%s:%s/1' % (redis_url.hostname, redis_url.port),  # Local development Redis database 1
+        'DEFAULT_TIMEOUT': 500,
+        'CONNECTION_POOL_KWARGS': {
+            'ssl_cert_reqs': None  # Disable SSL verification
+        },
+    },
+    'dev': {
+        'URL': 'redis://%s:%s/2' % (redis_url.hostname, redis_url.port),  # CICD pipeline Redis database 2
+        'DEFAULT_TIMEOUT': 500,
+        'CONNECTION_POOL_KWARGS': {
+            'ssl_cert_reqs': None  # Disable SSL verification
+        },
     },
 }
 

@@ -56,15 +56,42 @@ print(redis_url.hostname)
 print(redis_url.port)
 print(redis_url.password)
 
+# Cache configurations
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://%s:%s' % (redis_url.hostname, redis_url.port), 
-        'OPTIONS': { 
-            'DB': 0,
+        'LOCATION': 'rediss://%s:%s/0' % (redis_url.hostname, redis_url.port),  # Production Redis database 0
+        'OPTIONS': {
             'PASSWORD': redis_url.password,
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
-            'MAX_ENTRIES': 5000, 
-        }, 
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000,
+            "CONNECTION_POOL_KWARGS": {
+                "ssl_cert_reqs": None  # Disable SSL verification
+            },
+        },
+    },
+    'local': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'rediss://%s:%s/1' % (redis_url.hostname, redis_url.port),  # Local development Redis database 1
+        'OPTIONS': {
+            'PASSWORD': redis_url.password,
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000,
+            "CONNECTION_POOL_KWARGS": {
+                "ssl_cert_reqs": None  # Disable SSL verification
+            },
+        },
+    },
+    'dev': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'rediss://%s:%s/2' % (redis_url.hostname, redis_url.port),  # CICD pipeline Redis database 2
+        'OPTIONS': {
+            'PASSWORD': redis_url.password,
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000,
+            "CONNECTION_POOL_KWARGS": {
+                "ssl_cert_reqs": None  # Disable SSL verification
+            },
+        },
     },
 }
