@@ -1,2 +1,2 @@
 web: gunicorn gd.wsgi
-worker: python manage.py rqworker default
+worker: python manage.py rqworker $ENVIRONMENT

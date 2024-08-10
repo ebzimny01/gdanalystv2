@@ -49,7 +49,7 @@ sentry_sdk.init(
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
 # This line is suggested by Heroku instead of line above
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -65,7 +65,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS: list[str] = [
     'gdanalyst',
     'django_rq',
     'django.contrib.admin',
@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE: list[str] = [
     'log_request_id.middleware.RequestIDMiddleware',
     'django.middleware.security.SecurityMiddleware',
     # Simplified static file serving.
@@ -128,59 +128,23 @@ CACHES = {
                 "ssl_cert_reqs": None  # Disable SSL verification
             },
         },
-    },
-    'local': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'rediss://%s:%s/1' % (redis_url.hostname, redis_url.port),  # Local development Redis database 1
-        'OPTIONS': {
-            'PASSWORD': redis_url.password,
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'MAX_ENTRIES': 5000,
-            "CONNECTION_POOL_KWARGS": {
-                "ssl_cert_reqs": None  # Disable SSL verification
-            },
-        },
-    },
-    'dev': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'rediss://%s:%s/2' % (redis_url.hostname, redis_url.port),  # CICD pipeline Redis database 2
-        'OPTIONS': {
-            'PASSWORD': redis_url.password,
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'MAX_ENTRIES': 5000,
-            "CONNECTION_POOL_KWARGS": {
-                "ssl_cert_reqs": None  # Disable SSL verification
-            },
-        },
-    },
+    }
 }
 
-RQ = {
+RQ: dict[str, int] = {
     'DEFAULT_RESULT_TTL': 600,
 }
 
 # Queue configurations
-RQ_QUEUES = {
+RQ_QUEUES: dict[str, dict[str, str]] = {
     'default': {
-        'URL': 'redis://%s:%s/0' % (redis_url.hostname, redis_url.port),  # Production Redis database 0
-        'DEFAULT_TIMEOUT': 500,
-        'CONNECTION_POOL_KWARGS': {
-            'ssl_cert_reqs': None  # Disable SSL verification
-        },
-    },
-    'local': {
-        'URL': 'redis://%s:%s/1' % (redis_url.hostname, redis_url.port),  # Local development Redis database 1
-        'DEFAULT_TIMEOUT': 500,
-        'CONNECTION_POOL_KWARGS': {
-            'ssl_cert_reqs': None  # Disable SSL verification
-        },
+        'USE_REDIS_CACHE': 'default',
     },
     'dev': {
-        'URL': 'redis://%s:%s/2' % (redis_url.hostname, redis_url.port),  # CICD pipeline Redis database 2
-        'DEFAULT_TIMEOUT': 500,
-        'CONNECTION_POOL_KWARGS': {
-            'ssl_cert_reqs': None  # Disable SSL verification
-        },
+        'USE_REDIS_CACHE': 'default',
+    },
+    'local': {
+        'USE_REDIS_CACHE': 'default',
     },
 }
 

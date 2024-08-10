@@ -12,9 +12,20 @@ from nltk import tokenize
 # import pandas as pd
 from .models import School
 from .utils import total_size
+import os
 
-@job
+rq_queue:str = (os.environ.get('ENVIRONMENT', 'default'))
+queue_name = 'default'
+if rq_queue == 'dev':
+    queue_name = 'dev'
+elif rq_queue == 'local':
+    queue_name = 'local'
+else:
+    queue_name = 'default'
+
+@job(queue_name)
 def get_pbp(gid_list):
+    print(f"Using queue: {queue_name} for get_pbp job.")
     # Establish a sesssion connection to reuse in attempt to improve speed
     requests_session = requests.Session()
     
