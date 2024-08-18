@@ -47,8 +47,10 @@ $(document).ready( function () {
             searchPanes: {
               columns: [0, 1, 2, 5, 7, 8, 9, 10, 11],
               cascadePanes: true,
+              //initCollapsed: true,
+              //layout: 'columns-9'
             }
-          }, 
+          },
           top3Start: {
             buttons: [
               {
@@ -153,12 +155,12 @@ $(document).ready( function () {
             },
             targets: [11]
           },
-          /*{
+          {
             searchPanes: {
               show: true
             },
             targets: [0, 1, 2, 5, 7, 8, 9, 10, 11]
-          },*/
+          },
           {
             searchPanes: {
               show: false
