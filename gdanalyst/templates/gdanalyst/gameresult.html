@@ -7,9 +7,13 @@
 
 {% block styles %}
      
+<!--
 <link href="https://cdn.datatables.net/v/dt/jszip-3.10.1/dt-2.0.8/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/cr-2.0.3/fh-4.0.1/r-3.0.2/sc-2.4.3/sb-1.7.1/sp-2.3.1/sl-2.0.3/sr-1.4.1/datatables.min.css" rel="stylesheet">
-<link href="{% static 'gdanalyst/gameresult.css' %}" rel="stylesheet">
 <link href="{% static 'gdanalyst/datatables.min.css' %}" rel="stylesheet">
+-->
+<link href="{% static 'gdanalyst/mermaid.css' %}" rel="stylesheet">
+<link href="{% static 'gdanalyst/gameresult.css' %}" rel="stylesheet">
+
 <style>
     /* Set the width of the colvis popup */
     div.dt-button-collection.two-column {
@@ -50,12 +54,16 @@
             </div>
         </div>
     </div>
-    <div id="gameresults">
-        <input class="search" placeholder="Search" />
-        <button class="sort" data-sort="team">
-          Sort by name
-        </button>
-    <table class="cell-border order-column hover display compact">
+    <p>
+        <label for="rowsPerPage">Rows per page:</label>
+        <select id="rowsPerPage">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
+    </p>
+    <table id="gameresults" class="cell-border order-column hover display compact">
         <thead>
             <tr>
                 <th>G</th>
@@ -93,7 +101,7 @@
                 <th>Scr</th>
             </tr>
         </thead>
-        <tbody class="list">
+        <tbody>
             {% for row in result %}
                 <tr>
                     {% for data in row %}
@@ -124,7 +132,11 @@
             <script type="text/javascript" src="https://code.highcharts.com/modules/accessibility.js"></script>
             
             <script src="{% static 'gdanalyst/data_table_new.js' %}"></script>
+        
+            <script src="{% static 'gdanalyst/list.js' %}"></script>
+            <script src="{% static 'gdanalyst/list_table.js' %}"></script>
         -->
-        <script src="{% static 'gdanalyst/list.js' %}"></script>
-        <script src="{% static 'gdanalyst/list_table.js' %}"></script>
+        <script src="{% static 'gdanalyst/jquery-3.7.1.min.js' %}"></script>
+        <script src="https://unpkg.com/gridjs-jquery/dist/gridjs.production.min.js"></script>
+        <script src="{% static 'gdanalyst/grid_table.js' %}"></script>
 {% endblock %}
