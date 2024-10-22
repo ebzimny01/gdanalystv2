@@ -59,13 +59,13 @@ print(redis_url.password)
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://%s:%s' % (redis_url.hostname, redis_url.port), 
+        'LOCATION': 'rediss://%s:%s' % (redis_url.hostname, redis_url.port), 
         'OPTIONS': { 
             'DB': 0,
             'PASSWORD': redis_url.password,
             'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
             'CONNECTION_POOL_KWARGS': {
-                "ssl_cert_reqs": None
+                {"ssl_cert_reqs": "CERT_NONE"}
             },
             'MAX_ENTRIES': 5000,
         }, 
