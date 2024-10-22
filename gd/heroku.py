@@ -64,7 +64,10 @@ CACHES = {
             'DB': 0,
             'PASSWORD': redis_url.password,
             'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
-            'MAX_ENTRIES': 5000, 
+            'CONNECTION_POOL_KWARGS': {
+                "ssl_cert_reqs": None
+            },
+            'MAX_ENTRIES': 5000,
         }, 
     },
 }

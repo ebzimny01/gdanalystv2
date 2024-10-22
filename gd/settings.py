@@ -115,7 +115,10 @@ CACHES = {
         'LOCATION': os.environ.get('REDIS_URL'), 
         'TIMEOUT': 1200,
         'OPTIONS': { 
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {
+                "ssl_cert_reqs": None
+            }, 
             'MAX_ENTRIES': 5000, 
         }, 
     },
