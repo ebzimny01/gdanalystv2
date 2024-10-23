@@ -70,3 +70,5 @@ CACHES = {
         }, 
     },
 }
+
+print(f"CACHES: {CACHES}")
