@@ -13,3 +13,5 @@ gd/sec1.py
 appendonly.aof
 .vscode/settings.json
 .vscode/extensions.json
+Dockerfile*
+docker-compose.yml
