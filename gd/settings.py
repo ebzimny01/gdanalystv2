@@ -112,7 +112,7 @@ WSGI_APPLICATION = 'gd.wsgi.application'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f"{os.environ.get('REDIS_URL')}?ssl_cert_reqs=none", 
+        'LOCATION': os.environ.get('REDIS_URL'), 
         'TIMEOUT': 1200,
         'OPTIONS': { 
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',

@@ -59,7 +59,7 @@ print(redis_url.password)
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': redis_url, 
+        'LOCATION': env('REDIS_URL'), 
         'OPTIONS': { 
             'DB': 0,
             'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
