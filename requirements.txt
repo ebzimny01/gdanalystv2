@@ -19,7 +19,7 @@ django-rq==2.4.1
 django-tables2>=2.5.1
 gunicorn==22.0.0
 html5lib==1.1
-idna==2.10
+idna==3.7
 joblib>=1.2.0
 lxml>=4.9.2
 multidict==5.1.0
