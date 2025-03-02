@@ -17,7 +17,7 @@ django-log-request-id>=2.1.0
 django-redis>=5.2.0
 django-rq==2.4.1
 django-tables2>=2.5.1
-gunicorn==20.1.0
+gunicorn==22.0.0
 html5lib==1.1
 idna==2.10
 joblib>=1.2.0
