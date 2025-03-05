@@ -1,0 +1,18 @@
+{
+  "name": "GD Analyst V2",
+  "description": "Django app with NLTK integration",
+  "scripts": {
+    "postdeploy": "python scripts/setup_heroku.py"
+  },
+  "env": {
+    "NLTK_DATA": {
+      "description": "Path to NLTK data directory",
+      "value": "/app/nltk_data"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
