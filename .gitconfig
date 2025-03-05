@@ -1,0 +1,10 @@
+[http]
+    postBuffer = 524288000
+[core]
+    compression = 0
+[push]
+    default = current
+[pull]
+    rebase = false
+[credential]
+    helper = cache --timeout=3600
