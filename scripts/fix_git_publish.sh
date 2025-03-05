@@ -7,19 +7,26 @@ echo "Attempting to fix stuck Git publish process..."
 echo "Checking for running Git processes..."
 ps aux | grep git
 
-# 2. Kill any hung Git processes
+# 2. Check remote repository configuration
+echo "Checking remote repository configuration..."
+echo "Remote repositories:"
+git remote -v
+echo "Detailed origin information:"
+git remote show origin
+
+# 3. Kill any hung Git processes
 echo "Killing any hung Git processes..."
 pkill -f git
 
-# 3. Clean up lock files
+# 4. Clean up lock files
 echo "Cleaning up any Git lock files..."
 find .git -name "*.lock" -type f -delete
 
-# 4. Reset Git state
+# 5. Reset Git state
 echo "Resetting Git state..."
 git reset --mixed
 
-# 5. Check Git status
+# 6. Check Git status
 echo "Current Git status:"
 git status
 

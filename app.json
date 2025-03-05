@@ -1,12 +1,14 @@
 {
-  "name": "GD Analyst V2",
-  "description": "Django app with NLTK integration",
+  "name": "gdanalystv2",
+  "description": "GD Analyst application",
+  "repository": "https://github.com/ebzimny01/gdanalystv2",
+  "keywords": ["python", "django", "nltk"],
   "scripts": {
-    "postdeploy": "python scripts/setup_heroku.py"
+    "postdeploy": "python nltk_setup.py"
   },
   "env": {
     "NLTK_DATA": {
-      "description": "Path to NLTK data directory",
+      "description": "Path where NLTK data will be stored",
       "value": "/app/nltk_data"
     }
   },
@@ -14,5 +16,15 @@
     {
       "url": "heroku/python"
     }
-  ]
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    },
+    "worker": {
+      "quantity": 1, 
+      "size": "eco"
+    }
+  }
 }

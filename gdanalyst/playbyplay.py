@@ -8,8 +8,49 @@ from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 import django_rq
 from django_rq import job
 from nltk import tokenize
-# nltk.download('punkt')
-# import pandas as pd
+import os
+import sys
+import nltk
+
+# Initialize NLTK data paths at the top of the file
+def ensure_nltk_data():
+    """Ensure NLTK data is available, particularly punkt_tab for tokenization."""
+    nltk_data_dir = os.environ.get('NLTK_DATA', os.path.join(os.getcwd(), 'nltk_data'))
+    
+    # Add the NLTK data directory to the search path
+    if nltk_data_dir not in nltk.data.path:
+        nltk.data.path.insert(0, nltk_data_dir)
+    
+    # Check for punkt_tab specifically
+    try:
+        nltk.data.find('tokenizers/punkt_tab/english/')
+    except LookupError:
+        # Download punkt which contains punkt_tab
+        nltk.download('punkt', download_dir=nltk_data_dir)
+        
+        # Create punkt_tab directory structure
+        punkt_tab_dir = os.path.join(nltk_data_dir, 'tokenizers', 'punkt_tab')
+        os.makedirs(os.path.join(punkt_tab_dir, 'english'), exist_ok=True)
+        
+        # Copy files from punkt to punkt_tab
+        punkt_dir = os.path.join(nltk_data_dir, 'tokenizers', 'punkt')
+        if os.path.exists(punkt_dir):
+            for lang_dir in os.listdir(punkt_dir):
+                lang_path = os.path.join(punkt_dir, lang_dir)
+                if os.path.isdir(lang_path):
+                    target_dir = os.path.join(punkt_tab_dir, lang_dir)
+                    os.makedirs(target_dir, exist_ok=True)
+                    for file in os.listdir(lang_path):
+                        src_file = os.path.join(lang_path, file)
+                        dst_file = os.path.join(target_dir, file)
+                        if os.path.isfile(src_file) and not os.path.exists(dst_file):
+                            with open(src_file, 'rb') as f_in:
+                                with open(dst_file, 'wb') as f_out:
+                                    f_out.write(f_in.read())
+
+# Call this function when module is imported
+ensure_nltk_data()
+
 from .models import School
 from .utils import total_size
 
@@ -350,7 +391,12 @@ def parse_pbp(p):
     # gets play by play text
     t = p.find(class_='pbpDescription').text
     # splits out text into list of sentences
-    t_sentences = tokenize.sent_tokenize(t)
+    try:
+        t_sentences = tokenize.sent_tokenize(t)
+    except LookupError:
+        # If tokenization fails, ensure data is available and try again
+        ensure_nltk_data()
+        t_sentences = tokenize.sent_tokenize(t)
     t_sentences_length = len(t_sentences)
 
     # Column variables
