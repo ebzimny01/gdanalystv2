@@ -8,3 +8,6 @@
     rebase = false
 [credential]
     helper = cache --timeout=3600
+[alias]
+    verbose-push = "!GIT_TRACE=1 GIT_CURL_VERBOSE=1 GIT_TRACE_PERFORMANCE=1 git push"
+    auth-check = "!bash /home/edz/code/gdanalystv2/scripts/check_git_auth.sh"
